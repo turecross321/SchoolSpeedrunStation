@@ -3,9 +3,11 @@ const ids = {
   fetchingPlayer: "fetchingPlayer",
   notRegistered: "notRegistered",
   welcomeBackRegistered: "welcomeBackRegistered",
+  welcomeBackRegisteredPfp: "welcomeBackRegisteredPfp",
+  welcomeBackRegisteredName: "welcomeBackRegisteredName",
 };
 
-async function onNfcScan(uid) {
+async function onNfcScan(guid) {
   dialog = document.getElementById("nfcDialog");
 
   // parts of dialog
@@ -18,31 +20,40 @@ async function onNfcScan(uid) {
   notRegistered.hidden = true;
   welcomeBackRegistered.hidden = true;
 
+  // todo: split
+
   dialog.showModal();
 
   try {
-    const response = await api.getUser(uid);
+    const response = await api.getUser(guid);
 
     if (response.status == 404) {
       fetchingPlayer.hidden = true;
       notRegistered.hidden = false;
       welcomeBackRegistered.hidden = true;
     } else {
-      userText = document.getElementById("nfcUserText");
+      // todo: separate function probably
+
+      const userText = document.getElementById(ids.welcomeBackRegisteredName);
+      const userPfp = document.getElementById(ids.welcomeBackRegisteredPfp);
+
       const user = response.body;
 
       userText.innerText = user.username + " (" + user.cardGuid + ")";
+      userPfp.src = api.getUserProfilePictureUrl(guid);
 
       fetchingPlayer.hidden = true;
       notRegistered.hidden = true;
       welcomeBackRegistered.hidden = false;
+
+      await api.submitLocation(guid);
     }
 
     setTimeout(() => {
       dialog.close();
     }, 5000);
 
-    console.log(uid);
+    console.log(guid);
   } catch (error) {
     dialog.close();
     throw error;
