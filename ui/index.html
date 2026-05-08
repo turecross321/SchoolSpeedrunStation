@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <header id="nfcWarning" hidden>Kan inte nå NFC-läsare.</header>
+    <h1>Topp-lista</h1>
+    <table id="topScores">
+      <tr>
+        <th>#</th>
+        <th>Användare</th>
+        <th>Tid</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>TureBeast</td>
+        <td>16 s</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>AugustSnail</td>
+        <td>42 s</td>
+      </tr>
+    </table>
+
+    <dialog id="nfcDialog">
+      <p id="fetchingPlayer">Hämtar spelare...</p>
+      <p id="welcomeBackRegistered">
+        Välkommen tillbaka, <span id="nfcUserText">NFC detected</span>
+      </p>
+      <p id="notRegistered">
+        Ingen spelare har registrerats med det angivna kortet.
+      </p>
+    </dialog>
+
+    <script src="nfc.js"></script>
+    <script src="api.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
