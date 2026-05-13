@@ -43,9 +43,102 @@
         </p>
       </div>
 
-      <p id="notRegistered">
-        Ingen spelare har registrerats med det angivna kortet.
-      </p>
+      <div id="notRegistered">
+        <p>
+          Ingen spelare har registrerats med det angivna kortet. Fyll i följande
+          för att börja spela!
+        </p>
+
+        <form id="registerForm" submit="registerFormSubmit">
+          <div class="field">
+            <label for="registerUsername">Användarnamn</label>
+            <input id="registerUsername" />
+          </div>
+
+          <div class="field">
+            <label for="registerProgram">Kategori / Program</label>
+            <select id="registerProgram">
+              <option value="">Välj ett alternativ</option>
+
+              <optgroup label="Personal & Besökare">
+                <option value="teacher">Lärare</option>
+                <option value="staff">Annan personal</option>
+                <option value="visitor">
+                  Besökare / Ej knuten till skolan
+                </option>
+              </optgroup>
+
+              <optgroup label="Högskoleförberedande program">
+                <option value="ekonomi">Ekonomiprogrammet</option>
+                <option value="estet-bild">
+                  Estetiska programmet – Bild och formgivning
+                </option>
+                <option value="estet-mode">
+                  Estetiska programmet – Modedesign
+                </option>
+                <option value="estet-musik">
+                  Estetiska programmet – Musik
+                </option>
+                <option value="estet-muv">
+                  Estetiska programmet – Spetsutbildning (MUV)
+                </option>
+                <option value="natur">Naturvetenskapsprogrammet</option>
+                <option value="samhall">Samhällsvetenskapsprogrammet</option>
+                <option value="teknik">Teknikprogrammet</option>
+              </optgroup>
+
+              <optgroup label="Yrkesprogram">
+                <option value="barn-fritid">Barn- och fritidsprogrammet</option>
+                <option value="el-energi">El- och energiprogrammet</option>
+                <option value="fordon-transport">
+                  Fordons- och transportprogrammet
+                </option>
+                <option value="naturbruk">
+                  Naturbruksprogrammet – Hästhållning
+                </option>
+                <option value="vard-omsorg">Vård- och omsorgsprogrammet</option>
+              </optgroup>
+
+              <optgroup label="Övrigt">
+                <option value="introduktion">Introduktionsprogrammen</option>
+                <option value="larling">Gymnasial lärlingsutbildning</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>
+              <input type="checkbox" id="registerAgreeToTerms" required />
+              <span> Jag accepterar villkoren </span>
+            </label>
+
+            <details
+              id="registerTermsContent"
+              style="margin-top: 10px; font-size: 0.9rem; color: #444"
+            >
+              <summary style="cursor: pointer; color: #666">
+                Visa villkor (klicka för att läsa)
+              </summary>
+              <div
+                style="
+                  padding: 15px;
+                  border: 1px solid #eee;
+                  border-radius: 8px;
+                  background: #f9f9f9;
+                  margin-top: 5px;
+                "
+              >
+                <strong>Användarvillkor</strong>
+                <p>1. Vi lovar att inte sälja din data till utomjordingar.</p>
+                <p>2. Du lovar att vara snäll när du använder sidan.</p>
+                <p>3. Allt innehåll här är bara ett exempel.</p>
+              </div>
+            </details>
+          </div>
+
+          <button type="submit">Registrera</button>
+        </form>
+      </div>
     </dialog>
 
     <script src="environment.js"></script>

@@ -62,4 +62,12 @@ class ApiClient {
 
     return this.post("locations/submit", body);
   }
+
+  async register(guid, username, program) {
+    return this.post("users/register", {
+      cardGuid: guid,
+      username: username,
+      program: program,
+    });
+  }
 }

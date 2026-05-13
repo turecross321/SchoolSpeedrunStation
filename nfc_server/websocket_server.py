@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 import threading
-from nfc_reader import NFCReader
+from nfc_server.nfc_reader import NFCReader
 
 PORT = "6769"
 LISTEN_IP = "127.0.0.1"

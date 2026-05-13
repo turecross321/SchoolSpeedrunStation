@@ -1,82 +1,110 @@
-const ids = {
-  nfcWarning: "nfcWarning",
-  fetchingPlayer: "fetchingPlayer",
-  notRegistered: "notRegistered",
-  welcomeBackRegistered: "welcomeBackRegistered",
-  welcomeBackRegisteredPfp: "welcomeBackRegisteredPfp",
-  welcomeBackRegisteredName: "welcomeBackRegisteredName",
+// 1. Elementreferenser (DOM-cache)
+const dom = {
+  nfcDialog: document.getElementById("nfcDialog"),
+  nfcWarning: document.getElementById("nfcWarning"),
+  fetchingPlayer: document.getElementById("fetchingPlayer"),
+  notRegistered: document.getElementById("notRegistered"),
+  welcomeBack: {
+    container: document.getElementById("welcomeBackRegistered"),
+    name: document.getElementById("welcomeBackRegisteredName"),
+    pfp: document.getElementById("welcomeBackRegisteredPfp"),
+  },
+  register: {
+    form: document.getElementById("registerForm"),
+    username: document.getElementById("registerUsername"),
+    program: document.getElementById("registerProgram"),
+    content: document.getElementById("registerTermsContent"),
+  },
 };
 
+// Global variabel för att hålla koll på aktivt kort
+let currentGuid = null;
+
+// 2. NFC Logik
 async function onNfcScan(guid) {
-  dialog = document.getElementById("nfcDialog");
+  currentGuid = guid;
 
-  // parts of dialog
-  fetchingPlayer = document.getElementById(ids.fetchingPlayer);
-  notRegistered = document.getElementById(ids.notRegistered);
-  welcomeBackRegistered = document.getElementById(ids.welcomeBackRegistered);
+  // Initiera dialogen (visa laddnings-vy)
+  dom.fetchingPlayer.hidden = false;
+  dom.notRegistered.hidden = true;
+  dom.welcomeBack.container.hidden = true;
 
-  // initialize dialog
-  fetchingPlayer.hidden = false;
-  notRegistered.hidden = true;
-  welcomeBackRegistered.hidden = true;
-
-  // todo: split
-
-  dialog.showModal();
+  dom.nfcDialog.showModal();
 
   try {
     const response = await api.getUser(guid);
 
     if (response.status == 404) {
-      fetchingPlayer.hidden = true;
-      notRegistered.hidden = false;
-      welcomeBackRegistered.hidden = true;
+      // Visa registreringsformulär
+      dom.fetchingPlayer.hidden = true;
+      dom.notRegistered.hidden = false;
+
+      // Nollställ formuläret för den nya användaren
+      dom.register.form.reset();
+      dom.register.content.open = false;
     } else {
-      // todo: separate function probably
-
-      const userText = document.getElementById(ids.welcomeBackRegisteredName);
-      const userPfp = document.getElementById(ids.welcomeBackRegisteredPfp);
-
+      // Befintlig användare - fyll i välkomstinfo
       const user = response.body;
+      dom.welcomeBack.name.innerText = `${user.username} (${user.cardGuid})`;
+      dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(guid);
 
-      userText.innerText = user.username + " (" + user.cardGuid + ")";
-      userPfp.src = api.getUserProfilePictureUrl(guid);
-
-      fetchingPlayer.hidden = true;
-      notRegistered.hidden = true;
-      welcomeBackRegistered.hidden = false;
+      dom.fetchingPlayer.hidden = true;
+      dom.welcomeBack.container.hidden = false;
 
       await api.submitLocation(guid);
+
+      setTimeout(() => {
+        dom.nfcDialog.close();
+      }, 4000);
     }
-
-    setTimeout(() => {
-      dialog.close();
-    }, 5000);
-
-    console.log(guid);
   } catch (error) {
-    dialog.close();
-    throw error;
+    dom.nfcDialog.close();
+    console.error("NFC Scan Error:", error);
   }
 }
 
+// 3. Registreringslogik
+async function register(event) {
+  event.preventDefault();
+
+  const data = {
+    username: dom.register.username.value,
+    program: dom.register.program.value,
+    guid: currentGuid,
+  };
+
+  try {
+    const response = await api.register(data.guid, data.username, data.program);
+    alert(`Välkommen ${response.body.username}! Du är nu registrerad.`);
+
+    dom.register.form.reset();
+    dom.nfcDialog.close();
+  } catch (error) {
+    alert("Kunde inte registrera spelare.");
+    console.error(error);
+  }
+}
+
+// 4. Anslutningsstatus
 function onConnect() {
-  const element = document.getElementById(ids.nfcWarning);
-  element.hidden = true;
+  dom.nfcWarning.hidden = true;
 }
 
 function onDisconnect() {
-  const element = document.getElementById(ids.nfcWarning);
-  element.hidden = false;
+  dom.nfcWarning.hidden = false;
   client.connect();
 }
 
+// 5. Initiering
+const api = new ApiClient();
 const client = new NfcClient(
   "ws://localhost:6769",
   onNfcScan,
   onConnect,
   onDisconnect,
 );
+
 client.connect();
 
-const api = new ApiClient();
+// Koppla submit-eventet
+dom.register.form.addEventListener("submit", register);
