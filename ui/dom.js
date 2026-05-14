@@ -21,10 +21,11 @@ const dom = {
     },
     pfpPage: {
       container: document.getElementById("registrationPfpPage"),
-      video: document.getElementById("video"),
-      canvas: document.getElementById("canvas"),
-      photo: document.getElementById("photo"),
-      startButton: document.getElementById("start-button"),
+      video: document.getElementById("registration-video"),
+      canvas: document.getElementById("registration-canvas"),
+      photo: document.getElementById("registration-photo"),
+      startButton: document.getElementById("registration-start-button"),
+      clearButton: document.getElementById("registration-clear-button"),
     },
   },
 };

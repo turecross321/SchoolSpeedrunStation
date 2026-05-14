@@ -136,21 +136,29 @@
         </div>
 
         <div id="registrationPfpPage" hidden>
-          <p>Vänligen ta en profilbild för ditt konto.</p>
+          <h2>Anpassa din profil</h2>
+          <p>Ta en profilbild om du önskar!</p>
 
-          <div class="camera">
-            <video id="video">Kameraflöde inte tillgänligt.</video>
-            <button id="start-button">Capture photo</button>
+          <br />
+
+          <div class="registration-camera">
+            <video id="registration-video">Kameraflöde inte tillgänligt.</video>
           </div>
 
-          <canvas id="canvas"></canvas>
-          <div class="output">
+          <canvas id="registration-canvas"></canvas>
+          <div class="registration-output">
             <img
-              id="photo"
+              id="registration-photo"
               src=""
               alt="The screen capture will appear in this box."
+              hidden
             />
           </div>
+
+          <button id="registration-start-button">Capture photo</button>
+          <button id="registration-clear-button" type="button" hidden>
+            Retake photo
+          </button>
         </div>
       </div>
     </dialog>

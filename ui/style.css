@@ -58,3 +58,18 @@ th {
   flex-direction: column;
   gap: 0.25rem;
 }
+
+#registration-video,
+#registration-photo {
+  width: 400px;
+  height: 400px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 999px;
+}
+
+#registration-canvas {
+  display: none;
+  width: 400px;
+  height: 400px;
+}

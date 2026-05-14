@@ -9,13 +9,13 @@ const registrationSubPages = {
   profilePicture: 1,
 };
 
-const cameraWidth = 320; // We will scale the photo width to this
-let cameraHeight = 0;
+const cameraSize = 500;
 
 // Global variable to keep track of the active card
 let currentGuid = null;
 // is webcam actively streaming
 let cameraStreaming = false;
+let cameraStream = null;
 
 function initializeFetchingPlayerPage() {}
 
@@ -33,10 +33,10 @@ async function initializeWelcomeBackPage(guid, user) {
 }
 
 function initializeRegistrationPage() {
-  initializeRegistrationBasicInfoSubPage();
-  //initializeRegistrationProfilePictureSubPage(); // todo: FIX FIX FIX
-  //goToRegistrationSubPage(registrationSubPages.profilePicture);
-  goToRegistrationSubPage(registrationSubPages.basicInformationForm);
+  //initializeRegistrationBasicInfoSubPage();
+  initializeRegistrationProfilePictureSubPage(); // todo: FIX FIX FIX
+  goToRegistrationSubPage(registrationSubPages.profilePicture);
+  //goToRegistrationSubPage(registrationSubPages.basicInformationForm);
 }
 
 function goToRegistrationSubPage(page) {
@@ -58,27 +58,140 @@ function initializeRegistrationBasicInfoSubPage() {
 }
 
 function initializeRegistrationProfilePictureSubPage() {
-  dom.registration.pfpPage.video.addEventListener("canplay", (ev) => {
-    if (!cameraStreaming) {
-      cameraHeight = video.videoHeight / (video.videoWidth / cameraWidth);
+  const video = dom.registration.pfpPage.video;
+  const canvas = dom.registration.pfpPage.canvas;
+  const photo = dom.registration.pfpPage.photo;
+  const startButton = dom.registration.pfpPage.startButton;
+  const clearButton = dom.registration.pfpPage.clearButton;
 
-      dom.registration.pfpPage.video.setAttribute("width", cameraWidth);
-      dom.registration.pfpPage.video.setAttribute("height", cameraHeight);
-      dom.registration.pfpPage.canvas.setAttribute("width", cameraWidth);
-      dom.registration.pfpPage.canvas.setAttribute("height", cameraHeight);
-      cameraStreaming = true;
-    }
-  });
+  video.hidden = false;
+  photo.hidden = true;
+  startButton.hidden = false;
+  clearButton.hidden = true;
+
+  video.setAttribute("width", String(cameraSize));
+  video.setAttribute("height", String(cameraSize));
+  canvas.setAttribute("width", String(cameraSize));
+  canvas.setAttribute("height", String(cameraSize));
+
+  if (!startButton.dataset.bound) {
+    startButton.dataset.bound = "true";
+    startButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      capturePhoto();
+    });
+  }
+
+  if (!clearButton.dataset.bound) {
+    clearButton.dataset.bound = "true";
+    clearButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      resetCapturedPhoto();
+    });
+  }
+
+  if (cameraStream) {
+    video.srcObject = cameraStream;
+    cameraStreaming = true;
+    return;
+  }
 
   navigator.mediaDevices
-    .getUserMedia({ video: true, audio: false })
+    .getUserMedia({
+      video: {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
+      audio: false,
+    })
     .then((stream) => {
-      dom.registration.pfpPage.video.srcObject = stream;
-      dom.registration.pfpPage.video.play();
+      cameraStream = stream;
+      video.srcObject = stream;
+      video.play();
+      cameraStreaming = true;
     })
     .catch((err) => {
       console.error(`An error occurred: ${err}`);
     });
+}
+
+function capturePhoto() {
+  if (!cameraStreaming) {
+    return;
+  }
+
+  const video = dom.registration.pfpPage.video;
+  const canvas = dom.registration.pfpPage.canvas;
+  const photo = dom.registration.pfpPage.photo;
+  const context = canvas.getContext("2d");
+
+  const videoWidth = video.videoWidth;
+  const videoHeight = video.videoHeight;
+
+  if (!videoWidth || !videoHeight || !context) {
+    return;
+  }
+
+  const sourceSize = Math.min(videoWidth, videoHeight);
+  const sourceX = (videoWidth - sourceSize) / 2;
+  const sourceY = (videoHeight - sourceSize) / 2;
+
+  context.drawImage(
+    video,
+    sourceX,
+    sourceY,
+    sourceSize,
+    sourceSize,
+    0,
+    0,
+    cameraSize,
+    cameraSize,
+  );
+
+  // Produce the data URL and only swap UI once the <img> has loaded it
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+
+  // disable start button while image loads to avoid double clicks
+  const startBtn = dom.registration.pfpPage.startButton;
+  const clearBtn = dom.registration.pfpPage.clearButton;
+  startBtn.disabled = true;
+
+  function showCaptured() {
+    video.hidden = true;
+    photo.hidden = false;
+    startBtn.hidden = true;
+    startBtn.disabled = false;
+    clearBtn.hidden = false;
+  }
+
+  // attach load handler then set src; if already cached/instant, call handler
+  photo.onload = () => {
+    // small timeout to ensure paint has happened (prevents flicker on some browsers)
+    setTimeout(() => {
+      showCaptured();
+      photo.onload = null;
+    }, 20);
+  };
+
+  photo.src = dataUrl;
+  if (photo.complete) {
+    // image loaded synchronously
+    showCaptured();
+    photo.onload = null;
+  }
+}
+
+function resetCapturedPhoto() {
+  const video = dom.registration.pfpPage.video;
+  const photo = dom.registration.pfpPage.photo;
+  const startButton = dom.registration.pfpPage.startButton;
+  const clearButton = dom.registration.pfpPage.clearButton;
+
+  photo.setAttribute("src", "");
+  photo.hidden = true;
+  video.hidden = false;
+  startButton.hidden = false;
+  clearButton.hidden = true;
 }
 
 function goToDialogPage(page) {
@@ -121,7 +234,7 @@ async function onNfcScan(guid) {
     }
   } catch (error) {
     dom.nfcDialog.close();
-    console.error("NFC Scan Error:", error);
+    throw error;
   }
 }
 
