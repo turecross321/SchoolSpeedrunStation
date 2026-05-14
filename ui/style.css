@@ -59,8 +59,14 @@ th {
   gap: 0.25rem;
 }
 
-#registration-video,
-#registration-photo {
+#registration-pfp-camera-container {
+  width: 400px;
+  height: 400px;
+}
+
+#registration-pfp-video,
+#registration-pfp-photo {
+  position: absolute;
   width: 400px;
   height: 400px;
   object-fit: cover;
@@ -68,8 +74,26 @@ th {
   border-radius: 999px;
 }
 
-#registration-canvas {
+#registration-pfp-canvas {
   display: none;
   width: 400px;
   height: 400px;
+}
+
+#registration-pfp-camera-buttons {
+  display: flex;
+  place-content: center;
+}
+
+.emoji-button {
+  font-size: 2em;
+  width: 60px;
+  height: 60px;
+  text-align: center;
+}
+
+.gap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }

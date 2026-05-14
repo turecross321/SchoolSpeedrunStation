@@ -37,6 +37,21 @@ class ApiClient {
     return { body: body, status: response.status };
   }
 
+  async postPhoto(endpoint, photo) {
+    const formData = new FormData();
+    const fileName = photo?.name ?? "unknown.png";
+    formData.append("file", photo, fileName);
+
+    const response = await fetch(this.baseUrl + endpoint, {
+      method: "POST",
+      body: formData,
+    });
+
+    this.valuateResponseSuccess(response);
+
+    return { status: response.status };
+  }
+
   url(endpoint) {
     return this.baseUrl + endpoint;
   }
@@ -70,5 +85,9 @@ class ApiClient {
       username: username,
       schoolProgram: parseInt(program),
     });
+  }
+
+  async setProfilePicture(guid, photo) {
+    return this.postPhoto("users/" + guid + "/setProfilePicture", photo);
   }
 }

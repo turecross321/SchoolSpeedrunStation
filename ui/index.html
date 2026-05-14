@@ -136,29 +136,62 @@
         </div>
 
         <div id="registrationPfpPage" hidden>
-          <h2>Anpassa din profil</h2>
-          <p>Ta en profilbild om du önskar!</p>
+          <div class="gap">
+            <div>
+              <h2>Anpassa din profil</h2>
+              <p>Ta en profilbild om du önskar!</p>
+            </div>
 
-          <br />
+            <div id="registration-pfp-camera-container">
+              <video id="registration-pfp-video">
+                Kameraflöde inte tillgänligt.
+              </video>
 
-          <div class="registration-camera">
-            <video id="registration-video">Kameraflöde inte tillgänligt.</video>
+              <img
+                id="registration-pfp-photo"
+                src=""
+                alt="The screen capture will appear in this box."
+                hidden
+              />
+            </div>
+
+            <!-- never shown. just to make the img work-->
+            <canvas id="registration-pfp-canvas"></canvas>
+
+            <div id="registration-pfp-camera-buttons">
+              <button class="emoji-button" id="registration-pfp-capture-button">
+                📷
+              </button>
+              <button
+                class="emoji-button"
+                id="registration-pfp-clear-button"
+                type="button"
+                hidden
+              >
+                🗑
+              </button>
+            </div>
+
+            <div class="field">
+              <button id="registration-pfp-skip" hidden>Hoppa över</button>
+              <button id="registration-pfp-use" hidden>Använd</button>
+            </div>
           </div>
+        </div>
 
-          <canvas id="registration-canvas"></canvas>
-          <div class="registration-output">
-            <img
-              id="registration-photo"
-              src=""
-              alt="The screen capture will appear in this box."
-              hidden
-            />
-          </div>
+        <div id="registration-finish-page" hidden>
+          <img id="registration-finish-pfp" />
+          <p>
+            Välkommen till SchoolSpeedrun,
+            <span id="registration-finish-name">namn</span>
+          </p>
 
-          <button id="registration-start-button">Capture photo</button>
-          <button id="registration-clear-button" type="button" hidden>
-            Retake photo
-          </button>
+          <p>Program: <span id="registration-finish-program">okänt</span></p>
+
+          <p>
+            Skanna ditt kort igen för att påbörja din första springtur. Lycka
+            till!
+          </p>
         </div>
       </div>
     </dialog>
