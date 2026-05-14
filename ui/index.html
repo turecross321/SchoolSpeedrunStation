@@ -8,18 +8,35 @@
   </head>
   <body>
     <header id="nfcWarning" hidden>Kan inte nå NFC-läsare.</header>
-    <h1>Topp-lista</h1>
-    <table id="topScores">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Användare</th>
-          <th>Tid</th>
-          <th>Datum</th>
-        </tr>
-      </thead>
-      <tbody id="topScoresBody"></tbody>
-    </table>
+    <div id="scoresContainer">
+      <div id="topScoresSection">
+        <label for="topScores">Topp-lista</label>
+        <table id="topScores">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Användare</th>
+              <th>Tid</th>
+              <th>Datum</th>
+            </tr>
+          </thead>
+          <tbody id="topScoresBody"></tbody>
+        </table>
+      </div>
+
+      <div id="runningRightNowSection">
+        <label for="runningRightNow">Springer just nu</label>
+        <table id="runningRightNow">
+          <thead>
+            <tr>
+              <th>Användare</th>
+              <th>Datum</th>
+            </tr>
+          </thead>
+          <tbody id="runningRightNowBody"></tbody>
+        </table>
+      </div>
+    </div>
 
     <dialog id="nfcDialog">
       <div id="fetchingPlayer">

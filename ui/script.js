@@ -38,6 +38,7 @@ async function initializeWelcomeBackPage(guid, user) {
   const run = response.body.run;
 
   updateLeaderboard();
+  updateRunningRightNow();
 
   if (run) alert("There is a new run!");
 
@@ -488,20 +489,20 @@ async function updateLeaderboard() {
           <tr>
             <td>${position}</td>
             <td>
-              <div class="leaderboard-user">
+              <div class="table-user">
                 <img
-                  class="leaderboard-avatar"
+                  class="table-avatar"
                   src="${profilePictureUrl}"
                   alt="Profilbild för ${user.username ?? "okänd användare"}"
                 />
                 <div>
-                  <div class="leaderboard-name">${user.username ?? "Okänd användare"}</div>
-                  <div class="leaderboard-program">${formatProgram(user.schoolProgram)}</div>
+                  <div class="table-name">${user.username ?? "Okänd användare"}</div>
+                  <div class="table-program">${formatProgram(user.schoolProgram)}</div>
+                  <div class="table-date">${formatRelativeDate(run.finishDate)}</div>
                 </div>
               </div>
             </td>
             <td>${formatTime(run.milliseconds ?? 0)}</td>
-            <td>${formatRelativeDate(run.finishDate)}</td>
           </tr>
         `;
       })
@@ -509,6 +510,37 @@ async function updateLeaderboard() {
   } catch (error) {
     console.error("Leaderboard update failed:", error);
   }
+}
+
+async function updateRunningRightNow() {
+  const response = await api.getRecentLocations();
+  const locations = response.body;
+
+  dom.runningRightNowBody.innerHTML = locations
+    .map((location, index) => {
+      const user = location.user ?? {};
+      const profilePictureUrl = api.getUserProfilePictureUrl(user.id);
+
+      return `
+          <tr>
+            <td>
+              <div class="table-user">
+                <img
+                  class="table-avatar"
+                  src="${profilePictureUrl}"
+                  alt="Profilbild för ${user.username ?? "okänd användare"}"
+                />
+                <div>
+                  <div class="table-name">${user.username ?? "Okänd användare"}</div>
+                  <div class="table-program">${formatProgram(user.schoolProgram)}</div>
+                  <div class="table-date">${formatRelativeDate(location.date)}</div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+    })
+    .join("");
 }
 
 function onNfcConnect() {
@@ -537,6 +569,8 @@ dom.registration.pfpPage.skipButton.addEventListener(
 );
 
 setInterval(() => updateLeaderboard(), 60 * 1000); // Automatically refresh leaderboard every minute
+setInterval(() => updateRunningRightNow(), 15 * 1000); // Automatically refresh running right now every 15 seconds
 
 client.connect();
 updateLeaderboard();
+updateRunningRightNow();

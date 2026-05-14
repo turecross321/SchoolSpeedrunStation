@@ -3,6 +3,7 @@ const dom = {
   nfcWarning: document.getElementById("nfcWarning"),
   fetchingPlayer: document.getElementById("fetchingPlayer"),
   leaderboardBody: document.getElementById("topScoresBody"),
+  runningRightNowBody: document.getElementById("runningRightNowBody"),
   welcomeBack: {
     container: document.getElementById("welcomeBackRegistered"),
     name: document.getElementById("welcomeBackRegisteredName"),

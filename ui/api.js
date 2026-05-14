@@ -90,4 +90,8 @@ class ApiClient {
   async setProfilePicture(guid, photo) {
     return this.postPhoto("users/" + guid + "/setProfilePicture", photo);
   }
+
+  async getRecentLocations() {
+    return this.get("locations/recent");
+  }
 }
