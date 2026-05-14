@@ -18,6 +18,7 @@ let currentRegistrationGuid = null;
 // is webcam actively streaming
 let cameraStreaming = false;
 let cameraStream = null;
+let captureCountdownToken = 0;
 
 function closeNfcDialog() {
   stopCamera();
@@ -36,9 +37,9 @@ async function initializeWelcomeBackPage(guid, user) {
   const response = await api.submitLocation(guid);
   const run = response.body.run;
 
-  if (run) alert("There is a new run!");
-
   updateLeaderboard();
+
+  if (run) alert("There is a new run!");
 
   setTimeout(() => {
     closeNfcDialog();
@@ -84,13 +85,19 @@ function initializeRegistrationProfilePictureSubPage() {
   const video = dom.registration.pfpPage.video;
   const canvas = dom.registration.pfpPage.canvas;
   const photo = dom.registration.pfpPage.photo;
+  const countdown = dom.registration.pfpPage.countdown;
   const startButton = dom.registration.pfpPage.captureButton;
   const clearButton = dom.registration.pfpPage.clearButton;
   const useButton = dom.registration.pfpPage.useButton;
   const skipButton = dom.registration.pfpPage.skipButton;
 
+  cancelCaptureCountdown();
   video.hidden = false;
   photo.hidden = true;
+  if (countdown) {
+    countdown.hidden = true;
+    countdown.textContent = "3";
+  }
   startButton.hidden = false;
   clearButton.hidden = true;
   skipButton.hidden = false;
@@ -105,7 +112,7 @@ function initializeRegistrationProfilePictureSubPage() {
     startButton.dataset.bound = "true";
     startButton.addEventListener("click", (event) => {
       event.preventDefault();
-      capturePhoto();
+      startCaptureCountdown();
     });
   }
 
@@ -159,6 +166,56 @@ async function initializeRegistrationFinishedSubPage() {
   currentRegistrationGuid = null;
 }
 
+function cancelCaptureCountdown() {
+  captureCountdownToken += 1;
+
+  const countdown = dom.registration.pfpPage.countdown;
+  const captureButton = dom.registration.pfpPage.captureButton;
+
+  countdown.hidden = true;
+  countdown.textContent = "3";
+
+  captureButton.disabled = false;
+}
+
+async function startCaptureCountdown() {
+  if (!cameraStreaming) {
+    return;
+  }
+
+  const countdown = dom.registration.pfpPage.countdown;
+  const captureButton = dom.registration.pfpPage.captureButton;
+  const photo = dom.registration.pfpPage.photo;
+  const video = dom.registration.pfpPage.video;
+
+  if (!countdown || captureButton.disabled) {
+    return;
+  }
+
+  const token = ++captureCountdownToken;
+
+  photo.hidden = true;
+  video.hidden = false;
+  captureButton.disabled = true;
+  countdown.hidden = false;
+
+  for (const seconds of [3, 2, 1]) {
+    if (token !== captureCountdownToken) {
+      return;
+    }
+
+    countdown.textContent = String(seconds);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  if (token !== captureCountdownToken) {
+    return;
+  }
+
+  countdown.hidden = true;
+  capturePhoto();
+}
+
 function capturePhoto() {
   if (!cameraStreaming) {
     return;
@@ -168,6 +225,7 @@ function capturePhoto() {
   const canvas = dom.registration.pfpPage.canvas;
   const photo = dom.registration.pfpPage.photo;
   const context = canvas.getContext("2d");
+  const captureButton = dom.registration.pfpPage.captureButton;
   const useButton = dom.registration.pfpPage.useButton;
   const skipButton = dom.registration.pfpPage.skipButton;
 
@@ -175,6 +233,7 @@ function capturePhoto() {
   const videoHeight = video.videoHeight;
 
   if (!videoWidth || !videoHeight || !context) {
+    captureButton.disabled = false;
     return;
   }
 
@@ -198,7 +257,6 @@ function capturePhoto() {
   const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
 
   // disable start button while image loads to avoid double clicks
-  const captureButton = dom.registration.pfpPage.captureButton;
   const clearButton = dom.registration.pfpPage.clearButton;
   captureButton.disabled = true;
 
@@ -231,6 +289,8 @@ function capturePhoto() {
 
 function stopCamera() {
   try {
+    cancelCaptureCountdown();
+
     const video = dom?.registration?.pfpPage?.video;
 
     if (cameraStream) {

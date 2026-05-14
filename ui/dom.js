@@ -24,6 +24,7 @@ const dom = {
       video: document.getElementById("registration-pfp-video"),
       canvas: document.getElementById("registration-pfp-canvas"),
       photo: document.getElementById("registration-pfp-photo"),
+      countdown: document.getElementById("registration-pfp-countdown"),
       captureButton: document.getElementById("registration-pfp-capture-button"),
       clearButton: document.getElementById("registration-pfp-clear-button"),
       useButton: document.getElementById("registration-pfp-use"),

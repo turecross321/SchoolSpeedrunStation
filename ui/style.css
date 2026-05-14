@@ -60,6 +60,7 @@ th {
 }
 
 #registration-pfp-camera-container {
+  position: relative;
   width: 400px;
   height: 400px;
 }
@@ -72,6 +73,39 @@ th {
   object-fit: cover;
   object-position: center;
   border-radius: 999px;
+}
+
+#registration-pfp-countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: white;
+  font-size: 5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+  pointer-events: none;
+}
+
+#registration-pfp-countdown[hidden] {
+  display: none !important;
+}
+
+#registration-pfp-video,
+#registration-pfp-photo,
+#registration-pfp-countdown {
+  top: 0;
+  left: 0;
+}
+
+#registration-pfp-video,
+#registration-pfp-photo {
+  z-index: 1;
 }
 
 #registration-pfp-canvas {
