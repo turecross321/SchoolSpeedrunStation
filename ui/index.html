@@ -75,7 +75,7 @@
       </div>
 
       <div id="welcomeBackRegistered">
-        <img id="welcomeBackRegisteredPfp" />
+        <img id="welcomeBackRegisteredPfp" class="round" />
         <p>
           Välkommen tillbaka, <span id="welcomeBackRegisteredName">namn</span>
         </p>
@@ -89,174 +89,31 @@
       </div>
 
       <div id="registration">
-        <div id="registrationBasicInfoPage" hidden>
-          <h2>Välkommen!</h2>
-          <p>
-            Ingen spelare har registrerats med det angivna kortet. Skapa ett
-            konto för att börja spela!
-          </p>
+        <h2>Välkommen!</h2>
+        <p>
+          Ingen spelare har registrerats med det angivna kortet. Skapa ett konto
+          genom att skanna QR-koden!
+        </p>
 
-          <br />
+        <div id="registrationQrCodeContainer"></div>
+        <p class="qr-footnote">Koden kan bara användas en gång.</p>
+      </div>
+      </div>
 
-          <form id="registerForm" submit="registerFormSubmit">
-            <div class="field">
-              <label for="registerUsername">Användarnamn</label>
-              <input
-                id="registerUsername"
-                type="text"
-                required
-                minlength="3"
-                maxlength="36"
-                pattern="[a-zA-ZåäöÅÄÖ0-9]{3,36}"
-                title="Användarnamnet måste vara 3-36 tecken och bara innehålla bokstäver och siffror."
-                autocomplete="off"
-              />
-            </div>
-
-            <div class="field">
-              <label for="registerProgram">Kategori / Program</label>
-              <select id="registerProgram" required>
-                <option value="" selected disabled>Välj ett alternativ</option>
-
-                <optgroup label="Personal & Besökare">
-                  <option value="0">Lärare</option>
-                  <option value="1">Annan personal</option>
-                  <option value="2">Besökare / Ej knuten till skolan</option>
-                </optgroup>
-
-                <optgroup label="Högskoleförberedande program">
-                  <option value="3">Ekonomiprogrammet</option>
-                  <option value="4">
-                    Estetiska programmet – Bild och formgivning
-                  </option>
-                  <option value="5">Estetiska programmet – Modedesign</option>
-                  <option value="6">Estetiska programmet – Musik</option>
-                  <option value="7">
-                    Estetiska programmet – Spetsutbildning (MUV)
-                  </option>
-                  <option value="8">Naturvetenskapsprogrammet</option>
-                  <option value="9">Samhällsvetenskapsprogrammet</option>
-                  <option value="10">Teknikprogrammet</option>
-                </optgroup>
-
-                <optgroup label="Yrkesprogram">
-                  <option value="11">Barn- och fritidsprogrammet</option>
-                  <option value="12">El- och energiprogrammet</option>
-                  <option value="13">Fordons- och transportprogrammet</option>
-                  <option value="14">
-                    Naturbruksprogrammet – Hästhållning
-                  </option>
-                  <option value="15">Vård- och omsorgsprogrammet</option>
-                </optgroup>
-
-                <optgroup label="Övrigt">
-                  <option value="16">Introduktionsprogrammen</option>
-                  <option value="17">Gymnasial lärlingsutbildning</option>
-                </optgroup>
-              </select>
-            </div>
-
-            <div class="field">
-              <label>
-                <input type="checkbox" id="registerAgreeToTerms" required />
-                <span> Jag accepterar villkoren </span>
-              </label>
-
-              <details
-                id="registerTermsContent"
-                style="margin-top: 10px; font-size: 0.9rem; color: #444"
-              >
-                <summary style="cursor: pointer; color: #666">
-                  Visa villkor (klicka för att läsa)
-                </summary>
-                <div
-                  style="
-                    padding: 15px;
-                    border: 1px solid #eee;
-                    border-radius: 8px;
-                    background: #f9f9f9;
-                    margin-top: 5px;
-                  "
-                >
-                  <strong>Användarvillkor</strong>
-                  <p>1. Vi lovar att inte sälja din data till utomjordingar.</p>
-                  <p>2. Du lovar att vara snäll när du använder sidan.</p>
-                  <p>3. Allt innehåll här är bara ett exempel.</p>
-                </div>
-              </details>
-            </div>
-
-            <div style="display: flex; gap: 8px">
-              <button type="submit">Registrera</button>
-              <button type="button" id="registerCancel">Avbryt</button>
-            </div>
-          </form>
-        </div>
-
-        <div id="registrationPfpPage" hidden>
-          <div class="gap">
-            <div>
-              <h2>Anpassa din profil</h2>
-              <p>Ta en profilbild om du önskar!</p>
-            </div>
-
-            <div id="registration-pfp-camera-container">
-              <video id="registration-pfp-video">
-                Kameraflöde inte tillgänligt.
-              </video>
-
-              <img
-                id="registration-pfp-photo"
-                src=""
-                alt="The screen capture will appear in this box."
-                hidden
-              />
-
-              <div id="registration-pfp-countdown" hidden>3</div>
-            </div>
-
-            <!-- never shown. just to make the img work-->
-            <canvas id="registration-pfp-canvas"></canvas>
-
-            <div id="registration-pfp-camera-buttons">
-              <button class="emoji-button" id="registration-pfp-capture-button">
-                📷
-              </button>
-              <button
-                class="emoji-button"
-                id="registration-pfp-clear-button"
-                type="button"
-                hidden
-              >
-                🗑
-              </button>
-            </div>
-
-            <div class="field">
-              <button id="registration-pfp-skip" hidden>Hoppa över</button>
-              <button id="registration-pfp-use" hidden>Använd</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="registration-finish-page" hidden>
-          <img id="registration-finish-pfp" />
-          <p>
-            Välkommen till SchoolSpeedrun,
-            <span id="registration-finish-name">namn</span>
-          </p>
-
-          <p>Program: <span id="registration-finish-program">okänt</span></p>
-
-          <p>
-            Skanna ditt kort igen för att påbörja din första springtur. Lycka
-            till!
-          </p>
-        </div>
+      <!-- Universal dialog timer (single instance used for all dialog pages) -->
+      <div id="dialogTimer" class="qr-timer" hidden>
+        <div id="dialogTimerBar" class="qr-timer-bar"></div>
+        <div id="dialogTimerLabel" class="qr-timer-label"></div>
       </div>
     </dialog>
 
+    <!-- python main.py-->
     <script src="config.js"></script>
+
+    <!-- libraries-->
+    <script src="qrcode.min.js"></script>
+
+    <!-- local scripts-->
     <script src="helpers.js"></script>
     <script src="dom.js"></script>
     <script src="nfc-client.js"></script>

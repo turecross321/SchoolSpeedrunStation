@@ -14,7 +14,6 @@ body {
   color: #1a1a1a;
   padding: 2rem 1rem;
   margin: 0;
-  height: 100vh;
 }
 
 /* Re-enable cursor for registration step 1 (basic info) and step 2 (profile picture) */
@@ -347,7 +346,6 @@ dialog {
   box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
   padding: 2rem;
   max-width: 500px;
-  min-height: 342.4px;
   width: 90vw;
   background: white;
 }
@@ -391,16 +389,57 @@ dialog p {
 }
 
 dialog img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
   object-fit: cover;
   margin: 0 auto 0.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+#welcomeBackRegisteredPfp {
+  width: 150px;
+  height: 150px;
+}
+
+.round {
+  border-radius: 50%;
+}
+
+/* QR code registration countdown slider */
+.qr-timer {
+  margin-top: 1rem;
+  width: 100%;
+  height: 10px;
+  background: #e9ecef;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.qr-timer-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  background: linear-gradient(90deg, #0066ff, #3399ff);
+  border-radius: 999px;
+}
+
+.qr-timer-label {
+  margin-top: 0.5rem;
+  text-align: right;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Footnote displayed under the registration QR code */
+.qr-footnote {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
 dialog h2 {
-  margin: 1rem 0 0.5rem;
+  margin: 0;
   color: #1a1a1a;
   font-size: 1.5rem;
 }
@@ -476,6 +515,45 @@ dialog span {
   width: 80px;
   height: 80px;
   text-align: center;
+}
+
+#registrationQrCloseTimer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #f8fbff, #eef5ff);
+  border: 1px solid #d7e6ff;
+}
+
+.qr-close-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.qr-close-text span {
+  color: #0066ff;
+}
+
+.qr-close-track {
+  width: 100%;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: #dbe7ff;
+  overflow: hidden;
+}
+
+#registrationQrCloseTimerFill {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0066ff, #4d8dff);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
 }
 
 .gap {

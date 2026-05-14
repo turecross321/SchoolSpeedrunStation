@@ -61,6 +61,7 @@ HTTP_PORT = int(cfg.get("http_port", 6768))
 WEBSOCKET_HOST = cfg.get("websocket_host", "127.0.0.1")
 WEBSOCKET_PORT = int(cfg.get("websocket_port", 6769))
 API_BASE_URL = cfg.get("api_base_url", "http://127.0.0.1:5055/")
+REGISTRATION_PAGE_URL = cfg.get("registration_page_url", "http://127.0.0.1:5056/")
 STATION = int(cfg.get("station", 0))
 
 
@@ -69,6 +70,7 @@ class UiRequestHandler(SimpleHTTPRequestHandler):
 		if self.path == "/config.js":
 			config = {
 				"baseUrl": API_BASE_URL,
+				"registrationPageUrl": REGISTRATION_PAGE_URL,
 				"station": STATION,
 			}
 			payload = f"window.APP_CONFIG = {json.dumps(config)};\n"

@@ -2,6 +2,8 @@ class ApiClient {
   constructor() {
     const config = window.APP_CONFIG ?? {};
     this.baseUrl = config.baseUrl ?? "http://127.0.0.1:5055/";
+    this.registrationPageUrl =
+      config.registrationPageUrl ?? "http://127.0.0.1:5056";
     this.station = config.station ?? 0;
   }
 
@@ -93,5 +95,13 @@ class ApiClient {
 
   async getRecentLocations() {
     return this.get("locations/recent");
+  }
+
+  async requestRegistration(guid) {
+    return this.post("users/requestRegistration", { cardGuid: guid });
+  }
+
+  getRegistrationUrl(id) {
+    return this.registrationPageUrl + "?id=" + id;
   }
 }

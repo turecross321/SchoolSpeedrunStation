@@ -13,30 +13,11 @@ const dom = {
   },
   registration: {
     container: document.getElementById("registration"),
-    basicInfoPage: {
-      container: document.getElementById("registrationBasicInfoPage"),
-      form: document.getElementById("registerForm"),
-      username: document.getElementById("registerUsername"),
-      program: document.getElementById("registerProgram"),
-      content: document.getElementById("registerTermsContent"),
-      cancel: document.getElementById("registerCancel"),
-    },
-    pfpPage: {
-      container: document.getElementById("registrationPfpPage"),
-      video: document.getElementById("registration-pfp-video"),
-      canvas: document.getElementById("registration-pfp-canvas"),
-      photo: document.getElementById("registration-pfp-photo"),
-      countdown: document.getElementById("registration-pfp-countdown"),
-      captureButton: document.getElementById("registration-pfp-capture-button"),
-      clearButton: document.getElementById("registration-pfp-clear-button"),
-      useButton: document.getElementById("registration-pfp-use"),
-      skipButton: document.getElementById("registration-pfp-skip"),
-    },
-    finishPage: {
-      container: document.getElementById("registration-finish-page"),
-      name: document.getElementById("registration-finish-name"),
-      pfp: document.getElementById("registration-finish-pfp"),
-      program: document.getElementById("registration-finish-program"),
-    },
+    qrCodeContainer: document.getElementById("registrationQrCodeContainer"),
+  },
+  dialogTimer: {
+    container: document.getElementById("dialogTimer"),
+    bar: document.getElementById("dialogTimerBar"),
+    label: document.getElementById("dialogTimerLabel"),
   },
 };
