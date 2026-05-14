@@ -16,8 +16,8 @@ const registrationNamePattern = /^[a-zA-ZåäöÅÄÖ0-9]{3,36}$/;
 // Local station name mapping (temporary). Keys are numeric station ids.
 // Replace/extend this when server side mapping endpoint exists.
 const stationNames = {
-  0: "Fordonsentré",
-  1: "Huvudentré",
+  0: "Fordonsentrén",
+  1: "Huvudentrén",
 };
 
 function formatStationPair(start, end) {
@@ -46,8 +46,7 @@ async function initializeWelcomeBackPage(guid, user) {
   dom.welcomeBack.name.innerText = `${user.username}`;
   dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(user.id);
   dom.welcomeBack.program.innerText = formatProgram(user.schoolProgram);
-  dom.welcomeBack.otherStation.innerText =
-    stationNames[config.station ?? 0] + "n";
+  dom.welcomeBack.otherStation.innerText = stationNames[config.station ?? 0];
 
   const response = await api.submitLocation(guid);
   const run = response.body.run;
