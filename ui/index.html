@@ -8,33 +8,55 @@
   </head>
   <body>
     <header id="nfcWarning" hidden>Kan inte nå NFC-läsare.</header>
-    <div id="scoresContainer">
-      <div id="topScoresSection">
-        <label for="topScores">Topp-lista</label>
-        <table id="topScores">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Användare</th>
-              <th>Tid</th>
-              <th>Datum</th>
-            </tr>
-          </thead>
-          <tbody id="topScoresBody"></tbody>
-        </table>
+
+    <div id="appGrid">
+      <div id="scoresContainer">
+        <div id="topScoresSection">
+          <div class="table-wrap">
+            <label for="topScores">Topp-lista</label>
+            <div class="table-scroll">
+              <table id="topScores">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Användare</th>
+                    <th>Meta</th>
+                    <th>Tid</th>
+                  </tr>
+                </thead>
+                <tbody id="topScoresBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="runningRightNowSection">
+          <div class="table-wrap">
+            <label for="runningRightNow">Springer just nu</label>
+            <div class="table-scroll">
+              <table id="runningRightNow">
+                <thead>
+                  <tr>
+                    <th>Användare</th>
+                    <th>Meta</th>
+                  </tr>
+                </thead>
+                <tbody id="runningRightNowBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div id="runningRightNowSection">
-        <label for="runningRightNow">Springer just nu</label>
-        <table id="runningRightNow">
-          <thead>
-            <tr>
-              <th>Användare</th>
-              <th>Datum</th>
-            </tr>
-          </thead>
-          <tbody id="runningRightNowBody"></tbody>
-        </table>
+      <div id="infoPanel">
+        <div class="info-card">
+          <label>Vad är det här?</label>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+            posuere erat a ante. Vivamus sagittis lacus vel augue laoreet rutrum
+            faucibus dolor auctor.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -52,7 +74,8 @@
         <p>Program: <span id="welcomeBackRegisteredProgram">okänt</span></p>
 
         <p>
-          Din tid och plats har dokumenterats. Vi ses vid den andra stationen!
+          Din tid och plats har dokumenterats. Vi ses vid
+          <span id="welcome-back-other-station"></span>!
         </p>
       </div>
 

@@ -20,15 +20,11 @@ const programNames = {
 };
 
 function formatTime(milliseconds) {
-  const totalSeconds = Math.floor(milliseconds / 1000);
+  const totalSeconds = milliseconds / 1000;
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
 
-  if (minutes === 0) {
-    return `${seconds} s`;
-  }
-
-  return `${minutes} min ${String(seconds).padStart(2, "0")} s`;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds.toFixed(2)).padStart(5, "0")}`;
 }
 
 function formatProgram(programId) {

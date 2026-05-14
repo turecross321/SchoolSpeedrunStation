@@ -9,6 +9,7 @@ const dom = {
     name: document.getElementById("welcomeBackRegisteredName"),
     pfp: document.getElementById("welcomeBackRegisteredPfp"),
     program: document.getElementById("welcomeBackRegisteredProgram"),
+    otherStation: document.getElementById("welcome-back-other-station"),
   },
   registration: {
     container: document.getElementById("registration"),

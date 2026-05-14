@@ -13,6 +13,19 @@ const registrationSubPages = {
 const cameraSize = 500;
 const registrationNamePattern = /^[a-zA-ZåäöÅÄÖ0-9]{3,36}$/;
 
+// Local station name mapping (temporary). Keys are numeric station ids.
+// Replace/extend this when server side mapping endpoint exists.
+const stationNames = {
+  0: "Fordonsentré",
+  1: "Huvudentré",
+};
+
+function formatStationPair(start, end) {
+  const sName = stationNames[start] ?? String(start);
+  const eName = stationNames[end] ?? String(end);
+  return `${sName} → ${eName}`;
+}
+
 // Global variable to keep track of the active card
 let currentRegistrationGuid = null;
 // is webcam actively streaming
@@ -33,6 +46,8 @@ async function initializeWelcomeBackPage(guid, user) {
   dom.welcomeBack.name.innerText = `${user.username}`;
   dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(user.id);
   dom.welcomeBack.program.innerText = formatProgram(user.schoolProgram);
+  dom.welcomeBack.otherStation.innerText =
+    stationNames[config.station ?? 0] + "n";
 
   const response = await api.submitLocation(guid);
   const run = response.body.run;
@@ -479,13 +494,20 @@ async function updateLeaderboard() {
     const response = await api.getBestRuns();
     const runs = response.body ?? [];
 
-    dom.leaderboardBody.innerHTML = runs
-      .map((run, index) => {
-        const user = run.user ?? {};
-        const position = index + 1;
-        const profilePictureUrl = api.getUserProfilePictureUrl(user.id);
+    if (!runs || runs.length === 0) {
+      dom.leaderboardBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="empty">Inga resultat ännu</td>
+        </tr>
+      `;
+    } else {
+      dom.leaderboardBody.innerHTML = runs
+        .map((run, index) => {
+          const user = run.user ?? {};
+          const position = index + 1;
+          const profilePictureUrl = api.getUserProfilePictureUrl(user.id);
 
-        return `
+          return `
           <tr>
             <td>${position}</td>
             <td>
@@ -498,15 +520,23 @@ async function updateLeaderboard() {
                 <div>
                   <div class="table-name">${user.username ?? "Okänd användare"}</div>
                   <div class="table-program">${formatProgram(user.schoolProgram)}</div>
-                  <div class="table-date">${formatRelativeDate(run.finishDate)}</div>
                 </div>
               </div>
             </td>
-            <td>${formatTime(run.milliseconds ?? 0)}</td>
+            <td>
+              <div class="run-meta">
+                <div class="table-stations">${formatStationPair(run.startPosition, run.endPosition)}</div>
+                <div class="table-date">${formatRelativeDate(run.finishDate)}</div>
+              </div>
+            </td>
+            <td>
+              <div class="run-time">${formatTime(run.milliseconds ?? 0)}</div>
+            </td>
           </tr>
         `;
-      })
-      .join("");
+        })
+        .join("");
+    }
   } catch (error) {
     console.error("Leaderboard update failed:", error);
   }
@@ -533,14 +563,26 @@ async function updateRunningRightNow() {
                 <div>
                   <div class="table-name">${user.username ?? "Okänd användare"}</div>
                   <div class="table-program">${formatProgram(user.schoolProgram)}</div>
-                  <div class="table-date">${formatRelativeDate(location.date)}</div>
                 </div>
+              </div>
+            </td>
+            <td>
+              <div class="run-meta">
+                <div class="table-stations">från ${stationNames[location.position] ?? `Station ${location.position}`}</div>
+                <div class="table-date">${formatRelativeDate(location.date)}</div>
               </div>
             </td>
           </tr>
         `;
     })
     .join("");
+  if (!locations || locations.length === 0) {
+    dom.runningRightNowBody.innerHTML = `
+      <tr>
+        <td colspan="3" class="empty">Inga spelare just nu</td>
+      </tr>
+    `;
+  }
 }
 
 function onNfcConnect() {
@@ -574,3 +616,5 @@ setInterval(() => updateRunningRightNow(), 15 * 1000); // Automatically refresh 
 client.connect();
 updateLeaderboard();
 updateRunningRightNow();
+
+const config = window.APP_CONFIG ?? {};
