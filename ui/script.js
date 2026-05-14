@@ -69,7 +69,7 @@ async function register(event) {
 
   const data = {
     username: dom.register.username.value,
-    program: dom.register.program.value,
+    program: parseInt(dom.register.program.value),
     guid: currentGuid,
   };
 

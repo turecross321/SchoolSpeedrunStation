@@ -3,9 +3,6 @@ import websockets
 import threading
 from nfc_server.nfc_reader import NFCReader
 
-PORT = "6769"
-LISTEN_IP = "127.0.0.1"
-
 connected_clients = set()
 
 async def register(websocket):
@@ -32,7 +29,7 @@ async def broadcast(uid):
             return_exceptions=True
         )
 
-async def main():
+async def main(listen_ip: str = "127.0.0.1", port: str = "6769"):
     loop = asyncio.get_running_loop()
 
     # NFC callback (runs in another thread)
@@ -46,9 +43,9 @@ async def main():
     threading.Thread(target=reader.start_polling, daemon=True).start()
 
     # Start WebSocket server (INSIDE running loop)
-    server = await websockets.serve(handler, LISTEN_IP, PORT)
+    server = await websockets.serve(handler, listen_ip, port)
 
-    print("WebSocket server running on ws://" + LISTEN_IP + ":" + PORT)
+    print("WebSocket server running on ws://" + listen_ip + ":" + port)
 
     await server.wait_closed()
 

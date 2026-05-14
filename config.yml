@@ -1,0 +1,12 @@
+# Application configuration
+# Hosts can be IPs or hostnames
+http_host: 127.0.0.1
+http_port: 6768
+websocket_host: 127.0.0.1
+websocket_port: 6769
+
+# API URL consumed by the UI
+api_base_url: http://127.0.0.1:5055/
+
+# Station index used by the UI
+station: 0

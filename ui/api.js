@@ -1,19 +1,22 @@
 class ApiClient {
   constructor() {
-    //this.baseUrl = "https://api-speedrun.ture.fish:443/";
-    this.baseUrl = "http://127.0.0.1:5055/";
+    const config = window.APP_CONFIG ?? {};
+    this.baseUrl = config.baseUrl ?? "http://127.0.0.1:5055/";
+    this.station = config.station ?? 0;
+  }
 
-    // todo: separate this into an environment file and import it with modules.
-    // i will need to serve the website with a server for that to work.
-    // maybe i can do that with python? so its literally just a main.py that powers both the
-    // website, and the nfc shit
-    this.station = 0;
+  valuateResponseSuccess(response) {
+    switch (response.status) {
+      case 400:
+      case 0:
+        throw new Error(response.status + response.statusText);
+        break;
+    }
   }
 
   async get(endpoint) {
     const response = await fetch(this.baseUrl + endpoint);
-
-    if (response.status == 0) throw new Error("No response from server");
+    this.valuateResponseSuccess(response);
 
     const body = await response.json();
     return { body: body, status: response.status };
@@ -28,7 +31,7 @@ class ApiClient {
       body: JSON.stringify(postBody),
     });
 
-    if (response.status == 0) throw new Error("No response from server");
+    this.valuateResponseSuccess(response);
 
     const body = await response.json();
     return { body: body, status: response.status };
@@ -67,7 +70,7 @@ class ApiClient {
     return this.post("users/register", {
       cardGuid: guid,
       username: username,
-      program: program,
+      schoolProgram: program,
     });
   }
 }
