@@ -9,4 +9,4 @@ websocket_port: 6769
 api_base_url: http://127.0.0.1:5055/
 
 # Station index used by the UI
-station: 1
+station: 0

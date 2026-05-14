@@ -52,13 +52,22 @@
           <form id="registerForm" submit="registerFormSubmit">
             <div class="field">
               <label for="registerUsername">Användarnamn</label>
-              <input id="registerUsername" />
+              <input
+                id="registerUsername"
+                type="text"
+                required
+                minlength="3"
+                maxlength="36"
+                pattern="[a-zA-ZåäöÅÄÖ0-9]{3,36}"
+                title="Användarnamnet måste vara 3-36 tecken och bara innehålla bokstäver och siffror."
+                autocomplete="off"
+              />
             </div>
 
             <div class="field">
               <label for="registerProgram">Kategori / Program</label>
-              <select id="registerProgram">
-                <option value="">Välj ett alternativ</option>
+              <select id="registerProgram" required>
+                <option value="" selected disabled>Välj ett alternativ</option>
 
                 <optgroup label="Personal & Besökare">
                   <option value="0">Lärare</option>

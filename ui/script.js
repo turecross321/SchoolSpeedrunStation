@@ -11,6 +11,7 @@ const registrationSubPages = {
 };
 
 const cameraSize = 500;
+const registrationNamePattern = /^[a-zA-ZåäöÅÄÖ0-9]{3,36}$/;
 
 // Global variable to keep track of the active card
 let currentRegistrationGuid = null;
@@ -18,18 +19,29 @@ let currentRegistrationGuid = null;
 let cameraStreaming = false;
 let cameraStream = null;
 
+function closeNfcDialog() {
+  stopCamera();
+  dom.nfcDialog.close();
+}
+
 function initializeFetchingPlayerPage() {}
 
 async function initializeWelcomeBackPage(guid, user) {
+  dom.welcomeBack.pfp.src = null;
+
   dom.welcomeBack.name.innerText = `${user.username}`;
   dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(user.id);
   dom.welcomeBack.program.innerText = formatProgram(user.schoolProgram);
 
-  await api.submitLocation(guid);
+  const response = await api.submitLocation(guid);
+  const run = response.body.run;
+
+  if (run) alert("There is a new run!");
+
   updateLeaderboard();
 
   setTimeout(() => {
-    dom.nfcDialog.close();
+    closeNfcDialog();
   }, 4000);
 }
 
@@ -141,7 +153,7 @@ async function initializeRegistrationFinishedSubPage() {
   );
 
   setTimeout(() => {
-    dom.nfcDialog.close();
+    closeNfcDialog();
   }, 4000);
 
   currentRegistrationGuid = null;
@@ -352,7 +364,7 @@ async function onNfcScan(guid) {
       goToDialogPage(dialogPages.welcomeBack);
     }
   } catch (error) {
-    dom.nfcDialog.close();
+    closeNfcDialog();
     throw error;
   }
 }
@@ -360,9 +372,34 @@ async function onNfcScan(guid) {
 async function register(event) {
   event.preventDefault();
 
+  const form = dom.registration.basicInfoPage.form;
+  const usernameField = dom.registration.basicInfoPage.username;
+  const programField = dom.registration.basicInfoPage.program;
+
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  if (!registrationNamePattern.test(usernameField.value)) {
+    usernameField.setCustomValidity(
+      "Användarnamnet måste vara 3-36 tecken och bara innehålla bokstäver, siffror samt å, ä, ö.",
+    );
+    form.reportValidity();
+    usernameField.setCustomValidity("");
+    return;
+  }
+
+  if (!programField.value) {
+    programField.setCustomValidity("Du måste välja ett program.");
+    form.reportValidity();
+    programField.setCustomValidity("");
+    return;
+  }
+
   const data = {
-    username: dom.registration.basicInfoPage.username.value,
-    program: dom.registration.basicInfoPage.program.value,
+    username: usernameField.value,
+    program: programField.value,
     guid: currentRegistrationGuid,
   };
 
@@ -414,11 +451,6 @@ async function updateLeaderboard() {
   }
 }
 
-function cancelRegistration() {
-  dom.nfcDialog.close();
-  dom.registration.basicInfoPage.form.reset();
-}
-
 function onNfcConnect() {
   dom.nfcWarning.hidden = true;
 }
@@ -437,10 +469,7 @@ const client = new NfcClient(
 );
 
 dom.registration.basicInfoPage.form.addEventListener("submit", register);
-dom.registration.basicInfoPage.cancel.addEventListener(
-  "click",
-  cancelRegistration,
-);
+dom.registration.basicInfoPage.cancel.addEventListener("click", closeNfcDialog);
 dom.registration.pfpPage.useButton.addEventListener("click", useProfilePicture);
 dom.registration.pfpPage.skipButton.addEventListener(
   "click",
@@ -448,17 +477,6 @@ dom.registration.pfpPage.skipButton.addEventListener(
 );
 
 setInterval(() => updateLeaderboard(), 60 * 1000); // Automatically refresh leaderboard every minute
-
-// Ensure camera is stopped when the NFC dialog is closed
-if (
-  dom &&
-  dom.nfcDialog &&
-  typeof dom.nfcDialog.addEventListener === "function"
-) {
-  dom.nfcDialog.addEventListener("close", () => {
-    stopCamera();
-  });
-}
 
 client.connect();
 updateLeaderboard();
