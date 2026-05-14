@@ -42,18 +42,16 @@ class ApiClient {
   }
 
   async getUser(uid) {
-    //result = {"cardGuid": "2AEF014F", "username": "TureBeast", "profilePictureHash": ""}
     const result = await this.get("users/" + uid);
     return result;
   }
 
-  getUserProfilePictureUrl(guid) {
-    return this.url("users/" + guid + "/profilePicture");
+  getUserProfilePictureUrl(id) {
+    return this.url("users/" + id + "/profilePicture");
   }
 
   async getBestRuns() {
-    //const result = await this.get("bestUnique");
-    return result;
+    return await this.get("runs/bestUnique");
   }
 
   async submitLocation(guid) {
@@ -70,7 +68,7 @@ class ApiClient {
     return this.post("users/register", {
       cardGuid: guid,
       username: username,
-      schoolProgram: program,
+      schoolProgram: parseInt(program),
     });
   }
 }

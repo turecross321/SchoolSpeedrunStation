@@ -1,33 +1,111 @@
-// 1. Elementreferenser (DOM-cache)
-const dom = {
-  nfcDialog: document.getElementById("nfcDialog"),
-  nfcWarning: document.getElementById("nfcWarning"),
-  fetchingPlayer: document.getElementById("fetchingPlayer"),
-  notRegistered: document.getElementById("notRegistered"),
-  welcomeBack: {
-    container: document.getElementById("welcomeBackRegistered"),
-    name: document.getElementById("welcomeBackRegisteredName"),
-    pfp: document.getElementById("welcomeBackRegisteredPfp"),
-  },
-  register: {
-    form: document.getElementById("registerForm"),
-    username: document.getElementById("registerUsername"),
-    program: document.getElementById("registerProgram"),
-    content: document.getElementById("registerTermsContent"),
-  },
+const dialogPages = {
+  fetchingPlayer: 0,
+  welcomeBack: 1,
+  registration: 2,
 };
 
-// Global variabel för att hålla koll på aktivt kort
-let currentGuid = null;
+const registrationSubPages = {
+  basicInformationForm: 0,
+  profilePicture: 1,
+};
 
-// 2. NFC Logik
+const cameraWidth = 320; // We will scale the photo width to this
+let cameraHeight = 0;
+
+// Global variable to keep track of the active card
+let currentGuid = null;
+// is webcam actively streaming
+let cameraStreaming = false;
+
+function initializeFetchingPlayerPage() {}
+
+async function initializeWelcomeBackPage(guid, user) {
+  dom.welcomeBack.name.innerText = `${user.username}`;
+  dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(user.id);
+  dom.welcomeBack.program.innerText = formatProgram(user.schoolProgram);
+
+  await api.submitLocation(guid);
+  updateLeaderboard();
+
+  setTimeout(() => {
+    dom.nfcDialog.close();
+  }, 4000);
+}
+
+function initializeRegistrationPage() {
+  initializeRegistrationBasicInfoSubPage();
+  //initializeRegistrationProfilePictureSubPage(); // todo: FIX FIX FIX
+  //goToRegistrationSubPage(registrationSubPages.profilePicture);
+  goToRegistrationSubPage(registrationSubPages.basicInformationForm);
+}
+
+function goToRegistrationSubPage(page) {
+  switch (page) {
+    case registrationSubPages.basicInformationForm:
+      dom.registration.pfpPage.container.hidden = true;
+      dom.registration.basicInfoPage.container.hidden = false;
+      break;
+    case registrationSubPages.profilePicture:
+      dom.registration.pfpPage.container.hidden = false;
+      dom.registration.basicInfoPage.container.hidden = true;
+      break;
+  }
+}
+
+function initializeRegistrationBasicInfoSubPage() {
+  dom.registration.basicInfoPage.form.reset();
+  dom.registration.basicInfoPage.content.open = false;
+}
+
+function initializeRegistrationProfilePictureSubPage() {
+  dom.registration.pfpPage.video.addEventListener("canplay", (ev) => {
+    if (!cameraStreaming) {
+      cameraHeight = video.videoHeight / (video.videoWidth / cameraWidth);
+
+      dom.registration.pfpPage.video.setAttribute("width", cameraWidth);
+      dom.registration.pfpPage.video.setAttribute("height", cameraHeight);
+      dom.registration.pfpPage.canvas.setAttribute("width", cameraWidth);
+      dom.registration.pfpPage.canvas.setAttribute("height", cameraHeight);
+      cameraStreaming = true;
+    }
+  });
+
+  navigator.mediaDevices
+    .getUserMedia({ video: true, audio: false })
+    .then((stream) => {
+      dom.registration.pfpPage.video.srcObject = stream;
+      dom.registration.pfpPage.video.play();
+    })
+    .catch((err) => {
+      console.error(`An error occurred: ${err}`);
+    });
+}
+
+function goToDialogPage(page) {
+  switch (page) {
+    case dialogPages.fetchingPlayer:
+      dom.fetchingPlayer.hidden = false;
+      dom.registration.container.hidden = true;
+      dom.welcomeBack.container.hidden = true;
+      break;
+    case dialogPages.welcomeBack:
+      dom.fetchingPlayer.hidden = true;
+      dom.registration.container.hidden = true;
+      dom.welcomeBack.container.hidden = false;
+      break;
+    case dialogPages.registration:
+      dom.fetchingPlayer.hidden = true;
+      dom.registration.container.hidden = false;
+      dom.welcomeBack.container.hidden = true;
+      break;
+  }
+}
+
 async function onNfcScan(guid) {
   currentGuid = guid;
 
-  // Initiera dialogen (visa laddnings-vy)
-  dom.fetchingPlayer.hidden = false;
-  dom.notRegistered.hidden = true;
-  dom.welcomeBack.container.hidden = true;
+  initializeFetchingPlayerPage();
+  goToDialogPage(dialogPages.fetchingPlayer);
 
   dom.nfcDialog.showModal();
 
@@ -35,27 +113,11 @@ async function onNfcScan(guid) {
     const response = await api.getUser(guid);
 
     if (response.status == 404) {
-      // Visa registreringsformulär
-      dom.fetchingPlayer.hidden = true;
-      dom.notRegistered.hidden = false;
-
-      // Nollställ formuläret för den nya användaren
-      dom.register.form.reset();
-      dom.register.content.open = false;
+      initializeRegistrationPage();
+      goToDialogPage(dialogPages.registration);
     } else {
-      // Befintlig användare - fyll i välkomstinfo
-      const user = response.body;
-      dom.welcomeBack.name.innerText = `${user.username} (${user.cardGuid})`;
-      dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(guid);
-
-      dom.fetchingPlayer.hidden = true;
-      dom.welcomeBack.container.hidden = false;
-
-      await api.submitLocation(guid);
-
-      setTimeout(() => {
-        dom.nfcDialog.close();
-      }, 4000);
+      initializeWelcomeBackPage(guid, response.body);
+      goToDialogPage(dialogPages.welcomeBack);
     }
   } catch (error) {
     dom.nfcDialog.close();
@@ -63,48 +125,91 @@ async function onNfcScan(guid) {
   }
 }
 
-// 3. Registreringslogik
 async function register(event) {
   event.preventDefault();
 
   const data = {
-    username: dom.register.username.value,
-    program: parseInt(dom.register.program.value),
+    username: dom.registration.basicInfoPage.username.value,
+    program: dom.registration.basicInfoPage.program.value,
     guid: currentGuid,
   };
 
   try {
     const response = await api.register(data.guid, data.username, data.program);
-    alert(`Välkommen ${response.body.username}! Du är nu registrerad.`);
-
-    dom.register.form.reset();
-    dom.nfcDialog.close();
+    initializeRegistrationProfilePictureSubPage();
+    goToRegistrationSubPage(registrationSubPages.profilePicture);
   } catch (error) {
     alert("Kunde inte registrera spelare.");
     console.error(error);
   }
 }
 
-// 4. Anslutningsstatus
-function onConnect() {
+async function updateLeaderboard() {
+  try {
+    const response = await api.getBestRuns();
+    const runs = response.body ?? [];
+
+    dom.leaderboardBody.innerHTML = runs
+      .map((run, index) => {
+        const user = run.user ?? {};
+        const position = index + 1;
+        const profilePictureUrl = api.getUserProfilePictureUrl(user.id);
+
+        return `
+          <tr>
+            <td>${position}</td>
+            <td>
+              <div class="leaderboard-user">
+                <img
+                  class="leaderboard-avatar"
+                  src="${profilePictureUrl}"
+                  alt="Profilbild för ${user.username ?? "okänd användare"}"
+                />
+                <div>
+                  <div class="leaderboard-name">${user.username ?? "Okänd användare"}</div>
+                  <div class="leaderboard-program">${formatProgram(user.schoolProgram)}</div>
+                </div>
+              </div>
+            </td>
+            <td>${formatTime(run.milliseconds ?? 0)}</td>
+            <td>${formatRelativeDate(run.finishDate)}</td>
+          </tr>
+        `;
+      })
+      .join("");
+  } catch (error) {
+    console.error("Leaderboard update failed:", error);
+  }
+}
+
+function cancelRegistration() {
+  dom.nfcDialog.close();
+  dom.registration.basicInfoPage.form.reset();
+}
+
+function onNfcConnect() {
   dom.nfcWarning.hidden = true;
 }
 
-function onDisconnect() {
+function onNfcDisconnect() {
   dom.nfcWarning.hidden = false;
   client.connect();
 }
 
-// 5. Initiering
 const api = new ApiClient();
 const client = new NfcClient(
   "ws://localhost:6769",
   onNfcScan,
-  onConnect,
-  onDisconnect,
+  onNfcConnect,
+  onNfcDisconnect,
 );
 
-client.connect();
+dom.registration.basicInfoPage.form.addEventListener("submit", register);
+dom.registration.basicInfoPage.cancel.addEventListener(
+  "click",
+  cancelRegistration,
+);
+setInterval(() => updateLeaderboard(), 60 * 1000); // Automatically refresh leaderboard every minute
 
-// Koppla submit-eventet
-dom.register.form.addEventListener("submit", register);
+client.connect();
+updateLeaderboard();

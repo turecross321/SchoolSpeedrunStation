@@ -10,21 +10,15 @@
     <header id="nfcWarning" hidden>Kan inte nå NFC-läsare.</header>
     <h1>Topp-lista</h1>
     <table id="topScores">
-      <tr>
-        <th>#</th>
-        <th>Användare</th>
-        <th>Tid</th>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>TureBeast</td>
-        <td>16 s</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>AugustSnail</td>
-        <td>42 s</td>
-      </tr>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Användare</th>
+          <th>Tid</th>
+          <th>Datum</th>
+        </tr>
+      </thead>
+      <tbody id="topScoresBody"></tbody>
     </table>
 
     <dialog id="nfcDialog">
@@ -38,101 +32,133 @@
           Välkommen tillbaka, <span id="welcomeBackRegisteredName">namn</span>
         </p>
 
+        <p>Program: <span id="welcomeBackRegisteredProgram">okänt</span></p>
+
         <p>
           Din tid och plats har dokumenterats. Vi ses vid den andra stationen!
         </p>
       </div>
 
-      <div id="notRegistered">
-        <p>
-          Ingen spelare har registrerats med det angivna kortet. Fyll i följande
-          för att börja spela!
-        </p>
+      <div id="registration">
+        <div id="registrationBasicInfoPage" hidden>
+          <h2>Välkommen!</h2>
+          <p>
+            Ingen spelare har registrerats med det angivna kortet. Skapa ett
+            konto för att börja spela!
+          </p>
 
-        <form id="registerForm" submit="registerFormSubmit">
-          <div class="field">
-            <label for="registerUsername">Användarnamn</label>
-            <input id="registerUsername" />
-          </div>
+          <br />
 
-          <div class="field">
-            <label for="registerProgram">Kategori / Program</label>
-            <select id="registerProgram">
-              <option value="">Välj ett alternativ</option>
+          <form id="registerForm" submit="registerFormSubmit">
+            <div class="field">
+              <label for="registerUsername">Användarnamn</label>
+              <input id="registerUsername" />
+            </div>
 
-              <optgroup label="Personal & Besökare">
-                <option value="0">Lärare</option>
-                <option value="1">Annan personal</option>
-                <option value="2">Besökare / Ej knuten till skolan</option>
-              </optgroup>
+            <div class="field">
+              <label for="registerProgram">Kategori / Program</label>
+              <select id="registerProgram">
+                <option value="">Välj ett alternativ</option>
 
-              <optgroup label="Högskoleförberedande program">
-                <option value="3">Ekonomiprogrammet</option>
-                <option value="4">
-                  Estetiska programmet – Bild och formgivning
-                </option>
-                <option value="5">Estetiska programmet – Modedesign</option>
-                <option value="6">Estetiska programmet – Musik</option>
-                <option value="7">
-                  Estetiska programmet – Spetsutbildning (MUV)
-                </option>
-                <option value="8">Naturvetenskapsprogrammet</option>
-                <option value="9">Samhällsvetenskapsprogrammet</option>
-                <option value="10">Teknikprogrammet</option>
-              </optgroup>
+                <optgroup label="Personal & Besökare">
+                  <option value="0">Lärare</option>
+                  <option value="1">Annan personal</option>
+                  <option value="2">Besökare / Ej knuten till skolan</option>
+                </optgroup>
 
-              <optgroup label="Yrkesprogram">
-                <option value="11">Barn- och fritidsprogrammet</option>
-                <option value="12">El- och energiprogrammet</option>
-                <option value="13">Fordons- och transportprogrammet</option>
-                <option value="14">Naturbruksprogrammet – Hästhållning</option>
-                <option value="15">Vård- och omsorgsprogrammet</option>
-              </optgroup>
+                <optgroup label="Högskoleförberedande program">
+                  <option value="3">Ekonomiprogrammet</option>
+                  <option value="4">
+                    Estetiska programmet – Bild och formgivning
+                  </option>
+                  <option value="5">Estetiska programmet – Modedesign</option>
+                  <option value="6">Estetiska programmet – Musik</option>
+                  <option value="7">
+                    Estetiska programmet – Spetsutbildning (MUV)
+                  </option>
+                  <option value="8">Naturvetenskapsprogrammet</option>
+                  <option value="9">Samhällsvetenskapsprogrammet</option>
+                  <option value="10">Teknikprogrammet</option>
+                </optgroup>
 
-              <optgroup label="Övrigt">
-                <option value="16">Introduktionsprogrammen</option>
-                <option value="17">Gymnasial lärlingsutbildning</option>
-              </optgroup>
-            </select>
-          </div>
+                <optgroup label="Yrkesprogram">
+                  <option value="11">Barn- och fritidsprogrammet</option>
+                  <option value="12">El- och energiprogrammet</option>
+                  <option value="13">Fordons- och transportprogrammet</option>
+                  <option value="14">
+                    Naturbruksprogrammet – Hästhållning
+                  </option>
+                  <option value="15">Vård- och omsorgsprogrammet</option>
+                </optgroup>
 
-          <div class="field">
-            <label>
-              <input type="checkbox" id="registerAgreeToTerms" required />
-              <span> Jag accepterar villkoren </span>
-            </label>
+                <optgroup label="Övrigt">
+                  <option value="16">Introduktionsprogrammen</option>
+                  <option value="17">Gymnasial lärlingsutbildning</option>
+                </optgroup>
+              </select>
+            </div>
 
-            <details
-              id="registerTermsContent"
-              style="margin-top: 10px; font-size: 0.9rem; color: #444"
-            >
-              <summary style="cursor: pointer; color: #666">
-                Visa villkor (klicka för att läsa)
-              </summary>
-              <div
-                style="
-                  padding: 15px;
-                  border: 1px solid #eee;
-                  border-radius: 8px;
-                  background: #f9f9f9;
-                  margin-top: 5px;
-                "
+            <div class="field">
+              <label>
+                <input type="checkbox" id="registerAgreeToTerms" required />
+                <span> Jag accepterar villkoren </span>
+              </label>
+
+              <details
+                id="registerTermsContent"
+                style="margin-top: 10px; font-size: 0.9rem; color: #444"
               >
-                <strong>Användarvillkor</strong>
-                <p>1. Vi lovar att inte sälja din data till utomjordingar.</p>
-                <p>2. Du lovar att vara snäll när du använder sidan.</p>
-                <p>3. Allt innehåll här är bara ett exempel.</p>
-              </div>
-            </details>
+                <summary style="cursor: pointer; color: #666">
+                  Visa villkor (klicka för att läsa)
+                </summary>
+                <div
+                  style="
+                    padding: 15px;
+                    border: 1px solid #eee;
+                    border-radius: 8px;
+                    background: #f9f9f9;
+                    margin-top: 5px;
+                  "
+                >
+                  <strong>Användarvillkor</strong>
+                  <p>1. Vi lovar att inte sälja din data till utomjordingar.</p>
+                  <p>2. Du lovar att vara snäll när du använder sidan.</p>
+                  <p>3. Allt innehåll här är bara ett exempel.</p>
+                </div>
+              </details>
+            </div>
+
+            <div style="display: flex; gap: 8px">
+              <button type="submit">Registrera</button>
+              <button type="button" id="registerCancel">Avbryt</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="registrationPfpPage" hidden>
+          <p>Vänligen ta en profilbild för ditt konto.</p>
+
+          <div class="camera">
+            <video id="video">Kameraflöde inte tillgänligt.</video>
+            <button id="start-button">Capture photo</button>
           </div>
 
-          <button type="submit">Registrera</button>
-        </form>
+          <canvas id="canvas"></canvas>
+          <div class="output">
+            <img
+              id="photo"
+              src=""
+              alt="The screen capture will appear in this box."
+            />
+          </div>
+        </div>
       </div>
     </dialog>
 
     <script src="config.js"></script>
-    <script src="nfc.js"></script>
+    <script src="helpers.js"></script>
+    <script src="dom.js"></script>
+    <script src="nfc-client.js"></script>
     <script src="api.js"></script>
     <script src="script.js"></script>
   </body>
