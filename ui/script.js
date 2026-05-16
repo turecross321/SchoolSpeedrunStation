@@ -121,11 +121,12 @@ async function initializeWelcomeBackPage(guid, user) {
 
   const response = await api.submitLocation(guid);
   const run = response.body.run;
+  const runPosition = response.body.runPosition;
 
   updateLeaderboard();
   updateRunningRightNow();
 
-  if (run) alert("There is a new run!");
+  if (run && runPosition) alert("There is a new run: " + runPosition);
   // start universal dialog timer for welcome back (4s)
   startDialogTimer(4 * 1000, () => closeNfcDialog());
 }
@@ -217,7 +218,7 @@ async function onNfcScan(guid) {
 async function updateLeaderboard() {
   try {
     const response = await api.getBestRuns();
-    const runs = response.body ?? [];
+    const runs = response.body.slice(0, 5) ?? [];
 
     if (!runs || runs.length === 0) {
       dom.leaderboardBody.innerHTML = `
@@ -269,7 +270,7 @@ async function updateLeaderboard() {
 
 async function updateRunningRightNow() {
   const response = await api.getRecentLocations();
-  const locations = response.body;
+  const locations = response.body.slice(0, 5);
 
   dom.runningRightNowBody.innerHTML = locations
     .map((location, index) => {

@@ -331,7 +331,7 @@ class ApiClient {
       },
     ];
 
-    return { status: 200, body: body };
+    //return { status: 200, body: body };
     return await this.get("runs/bestUnique");
   }
 
@@ -548,7 +548,7 @@ class ApiClient {
       },
     ];
 
-    return { status: 200, body: body };
+    //return { status: 200, body: body };
 
     return this.get("locations/recent");
   }
