@@ -2,6 +2,7 @@ const dialogPages = {
   fetchingPlayer: 0,
   welcomeBack: 1,
   registration: 2,
+  runSummary: 3,
 };
 
 // Local station name mapping (temporary). Keys are numeric station ids.
@@ -120,15 +121,157 @@ async function initializeWelcomeBackPage(guid, user) {
   dom.welcomeBack.otherStation.innerText = stationNames[config.station ?? 0];
 
   const response = await api.submitLocation(guid);
-  const run = response.body.run;
-  const runPosition = response.body.runPosition;
+  const newRun = response.body.newRun;
+  const newRunIndex = response.body.newRunIndex;
+  const previousBestRun = response.body.previousBestRun;
+  const previousBestRunIndex = response.body.previousBestRunIndex;
 
   updateLeaderboard();
   updateRunningRightNow();
 
-  if (run && runPosition) alert("There is a new run: " + runPosition);
-  // start universal dialog timer for welcome back (4s)
-  startDialogTimer(4 * 1000, () => closeNfcDialog());
+  if (newRun != null && newRunIndex != null) {
+    // Show the NFC dialog to announce the new run instead of an alert
+    try {
+      goToDialogPage(dialogPages.runSummary);
+      dom.nfcDialog.showModal();
+    } catch (e) {
+      // ignore if dialog DOM not ready
+    }
+    // Give the user more time to see the run summary (15s)
+    startDialogTimer(15 * 1000, () => closeNfcDialog());
+  } else {
+    // start universal dialog timer for welcome back (4s)
+    startDialogTimer(4 * 1000, () => closeNfcDialog());
+  }
+
+  console.log(newRun);
+  console.log(newRunIndex);
+
+  // Populate run summary UI (separate page)
+  try {
+    const rs = dom.runSummary;
+    if (newRun != null && newRunIndex != null) {
+      if (rs && rs.containerInner) rs.containerInner.hidden = false;
+      if (rs && rs.title)
+        rs.title.innerText =
+          previousBestRun != null &&
+          newRun.milliseconds < previousBestRun.milliseconds
+            ? "Du slog ditt rekord!"
+            : "Du har genomfört loppet!";
+      if (rs && rs.time)
+        rs.time.innerText = formatTime(newRun.milliseconds ?? 0);
+      if (rs && rs.stations)
+        rs.stations.innerText = formatStationPair(
+          newRun.startPosition,
+          newRun.endPosition,
+        );
+
+      if (previousBestRun != null && rs && rs.prevRunContainer) {
+        rs.prevRunContainer.hidden = false;
+        if (rs.prevLabel)
+          rs.prevLabel.innerText =
+            newRun.milliseconds < previousBestRun.milliseconds
+              ? "Tidigare bästa"
+              : "Rekord";
+        if (rs.prevTime)
+          rs.prevTime.innerText = formatTime(previousBestRun.milliseconds ?? 0);
+        if (rs.prevStations)
+          rs.prevStations.innerText = formatStationPair(
+            previousBestRun.startPosition,
+            previousBestRun.endPosition,
+          );
+
+        const diff =
+          (previousBestRun.milliseconds ?? 0) - (newRun.milliseconds ?? 0);
+        if (diff > 0) {
+          if (rs.time) rs.time.classList.add("highlight");
+        } else {
+          if (rs.time) rs.time.classList.remove("highlight");
+        }
+      } else {
+        if (rs && rs.prevRunContainer) rs.prevRunContainer.hidden = true;
+        if (rs && rs.time) rs.time.classList.add("highlight");
+      }
+      // Small leaderboard showing user's rank (3 rows)
+      try {
+        if (rs && rs.leaderboardBody) {
+          const bestResponse = await api.getBestRuns();
+          const allRuns = bestResponse.body ?? [];
+
+          // Determine user's best index: prefer provided indices, else find by user id
+          let userBestIndex = null;
+          if (typeof newRunIndex === "number" && newRunIndex >= 0)
+            userBestIndex = newRunIndex;
+          if (
+            typeof previousBestRunIndex === "number" &&
+            previousBestRunIndex >= 0
+          ) {
+            if (userBestIndex === null) userBestIndex = previousBestRunIndex;
+            else userBestIndex = Math.min(userBestIndex, previousBestRunIndex);
+          }
+
+          if (userBestIndex === null) {
+            // fallback: find first run for this user in list
+            const found = allRuns.findIndex(
+              (r) => (r.user || {}).id === user.id,
+            );
+            if (found >= 0) userBestIndex = found;
+          }
+
+          if (
+            userBestIndex === null ||
+            userBestIndex < 0 ||
+            userBestIndex >= allRuns.length
+          ) {
+            rs.leaderboardBody.innerHTML = `
+              <tr><td colspan="3" class="empty">Ingen placering tillgänglig</td></tr>
+            `;
+          } else {
+            // center slice of 3 rows around userBestIndex
+            let start = Math.max(0, userBestIndex - 1);
+            if (start + 3 > allRuns.length)
+              start = Math.max(0, allRuns.length - 3);
+            const slice = allRuns.slice(start, start + 3);
+
+            rs.leaderboardBody.innerHTML = slice
+              .map((run, idx) => {
+                const absoluteIndex = start + idx;
+                const position = absoluteIndex + 1;
+                const userObj = run.user ?? {};
+                const profilePictureUrl = api.getUserProfilePictureUrl(
+                  userObj.id,
+                );
+                const isUser = userObj.id === user.id;
+                return `
+                  <tr class="${isUser ? "welcome-run-new" : ""}">
+                    <td>${position}</td>
+                    <td>
+                      <div class="table-user">
+                        <img class="table-avatar" src="${profilePictureUrl}" alt="Profilbild" />
+                        <div>
+                          <div class="table-name">${userObj.username ?? "Okänd"}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="run-time">${formatTime(run.milliseconds ?? 0)}</div>
+                    </td>
+                  </tr>
+                `;
+              })
+              .join("");
+          }
+        }
+      } catch (e) {
+        if (rs && rs.leaderboardBody)
+          rs.leaderboardBody.innerHTML = `<tr><td colspan="3" class="empty">Fel vid hämtning</td></tr>`;
+      }
+    } else {
+      if (rs && rs.containerInner) rs.containerInner.hidden = true;
+    }
+  } catch (e) {
+    // ignore DOM issues
+  }
 }
 
 async function initializeRegistrationPage(guid) {
@@ -176,16 +319,29 @@ function goToDialogPage(page) {
       dom.fetchingPlayer.hidden = false;
       dom.registration.container.hidden = true;
       dom.welcomeBack.container.hidden = true;
+      if (dom.runSummary && dom.runSummary.container)
+        dom.runSummary.container.hidden = true;
       break;
     case dialogPages.welcomeBack:
       dom.fetchingPlayer.hidden = true;
       dom.registration.container.hidden = true;
       dom.welcomeBack.container.hidden = false;
+      if (dom.runSummary && dom.runSummary.container)
+        dom.runSummary.container.hidden = true;
+      break;
+    case dialogPages.runSummary:
+      dom.fetchingPlayer.hidden = true;
+      dom.registration.container.hidden = true;
+      dom.welcomeBack.container.hidden = true;
+      if (dom.runSummary && dom.runSummary.container)
+        dom.runSummary.container.hidden = false;
       break;
     case dialogPages.registration:
       dom.fetchingPlayer.hidden = true;
       dom.registration.container.hidden = false;
       dom.welcomeBack.container.hidden = true;
+      if (dom.runSummary && dom.runSummary.container)
+        dom.runSummary.container.hidden = true;
       break;
   }
 }

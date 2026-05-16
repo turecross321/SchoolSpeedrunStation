@@ -16,32 +16,32 @@
         <div id="topScoresSection">
           <div class="table-wrap">
             <label for="topScores">Bästa tider</label>
-              <table id="topScores">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Användare</th>
-                    <th>Meta</th>
-                    <th>Tid</th>
-                  </tr>
-                </thead>
-                <tbody id="topScoresBody"></tbody>
-              </table>
+            <table id="topScores">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Användare</th>
+                  <th>Meta</th>
+                  <th>Tid</th>
+                </tr>
+              </thead>
+              <tbody id="topScoresBody"></tbody>
+            </table>
           </div>
         </div>
 
         <div id="runningRightNowSection">
           <div class="table-wrap">
             <label for="runningRightNow">Springer just nu</label>
-              <table id="runningRightNow">
-                <thead>
-                  <tr>
-                    <th>Användare</th>
-                    <th>Meta</th>
-                  </tr>
-                </thead>
-                <tbody id="runningRightNowBody"></tbody>
-              </table>
+            <table id="runningRightNow">
+              <thead>
+                <tr>
+                  <th>Användare</th>
+                  <th>Meta</th>
+                </tr>
+              </thead>
+              <tbody id="runningRightNowBody"></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -84,6 +84,58 @@
         </p>
       </div>
 
+      <div id="runSummaryPage" hidden>
+        <h2 id="runSummaryTitle">Du har genomfört loppet!</h2>
+
+        <div id="runSummary" class="welcome-run-info" hidden>
+          <div id="runSummaryNewRun" class="welcome-run-item welcome-run-new">
+            <div class="table-user">
+              <div>
+                <div class="table-name">Din tid</div>
+                <div class="table-program" id="runSummaryStations"></div>
+              </div>
+            </div>
+            <div class="welcome-run-time highlight" id="runSummaryTime">-</div>
+          </div>
+
+          <div
+            id="runSummaryPrevRun"
+            class="welcome-run-item welcome-run-previous"
+            hidden
+          >
+            <div class="table-user">
+              <div>
+                <div class="table-name" id="runSummaryPrevLabel">
+                  Tidigare bästa
+                </div>
+                <div class="table-program" id="runSummaryPrevStations"></div>
+              </div>
+            </div>
+            <div class="welcome-run-time" id="runSummaryPrevTime">-</div>
+          </div>
+        </div>
+
+        <div
+          id="runSummaryLeaderboardWrap"
+          class="table-wrap"
+          style="margin-top: 0.75rem; padding: 0.75rem"
+        >
+          <label>Din placering</label>
+          <div class="table-scroll">
+            <table id="runSummaryLeaderboard">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Användare</th>
+                  <th>Tid</th>
+                </tr>
+              </thead>
+              <tbody id="runSummaryLeaderboardBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <div id="registration">
         <h2>Välkommen!</h2>
         <p>
@@ -93,7 +145,6 @@
 
         <div id="registrationQrCodeContainer"></div>
         <p class="qr-footnote">Koden kan bara användas en gång.</p>
-      </div>
       </div>
 
       <!-- Universal dialog timer (single instance used for all dialog pages) -->

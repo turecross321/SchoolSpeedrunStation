@@ -349,6 +349,113 @@ dialog {
   background: white;
 }
 
+/* Welcome back run info */
+.welcome-run-info {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #ffffff;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #eef2f5;
+}
+
+.welcome-run-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.welcome-run-item .table-user {
+  gap: 0.75rem;
+}
+
+.welcome-run-new {
+  background: linear-gradient(90deg, rgba(0, 102, 255, 0.04), transparent);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(0, 102, 255, 0.08);
+}
+
+.welcome-run-previous {
+  background: #f8fafb;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #eef2f5;
+}
+
+.welcome-run-time {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #1a1a1a;
+  min-width: 6rem;
+  text-align: right;
+}
+
+.welcome-run-time.highlight {
+  color: #0066ff;
+  font-size: 1.5rem;
+}
+
+#runSummaryLeaderboardWrap {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+}
+
+#runSummaryLeaderboard {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#runSummaryLeaderboard th:first-child,
+#runSummaryLeaderboard td:first-child {
+  width: 3.25rem;
+  text-align: center;
+}
+
+#runSummaryLeaderboard th:nth-child(2),
+#runSummaryLeaderboard td:nth-child(2) {
+  text-align: left;
+  width: auto;
+  padding-left: 0.25rem;
+}
+
+#runSummaryLeaderboard th:last-child,
+#runSummaryLeaderboard td:last-child {
+  width: 7rem;
+  text-align: right;
+}
+
+#runSummaryLeaderboard .table-user {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.75rem;
+  justify-content: normal;
+}
+
+#runSummaryLeaderboard .table-name {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#runSummaryLeaderboard .table-avatar {
+  margin: 0;
+  width: 3rem;
+  height: 3rem;
+  flex: 0 0 auto;
+}
+
+#runSummaryLeaderboard .run-time {
+  text-align: right;
+}
+
 #appGrid {
   display: grid;
   gap: 1rem;
@@ -395,6 +502,11 @@ dialog img {
 }
 
 #welcomeBackRegisteredPfp {
+  width: 150px;
+  height: 150px;
+}
+
+#runSummaryPfp {
   width: 150px;
   height: 150px;
 }
