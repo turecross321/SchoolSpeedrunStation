@@ -141,14 +141,14 @@ function startDialogTimer(durationMs, onComplete) {
 
 function initializeFetchingPlayerPage() {}
 
-async function initializeWelcomeBackPage(guid, user) {
+async function initializeWelcomeBackPage(guid, user, scanDate) {
   dom.welcomeBack.pfp.src = null;
 
   dom.welcomeBack.name.innerText = `${user.username}`;
   dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(user.id);
   dom.welcomeBack.otherStation.innerText = stationNames[config.station ?? 0];
 
-  const response = await api.submitLocation(guid);
+  const response = await api.submitLocation(guid, scanDate);
   const newRun = response.body.newRun;
   const previousBestRun = response.body.previousBestRun;
 
@@ -356,6 +356,7 @@ function goToDialogPage(page) {
 async function onNfcScan(guid) {
   // clear timers from any previous scan so UI resets cleanly
   clearNfcTimers();
+  const scanDate = new Date();
 
   initializeFetchingPlayerPage();
   goToDialogPage(dialogPages.fetchingPlayer);
@@ -369,7 +370,7 @@ async function onNfcScan(guid) {
       goToDialogPage(dialogPages.registration);
       await initializeRegistrationPage(guid);
     } else {
-      initializeWelcomeBackPage(guid, response.body);
+      initializeWelcomeBackPage(guid, response.body, scanDate);
       goToDialogPage(dialogPages.welcomeBack);
     }
   } catch (error) {

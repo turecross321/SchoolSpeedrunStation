@@ -335,11 +335,11 @@ class ApiClient {
     return await this.get("runs/bestUnique");
   }
 
-  async submitLocation(guid) {
+  async submitLocation(guid, date = new Date()) {
     const body = {
       position: this.station,
       cardGuid: guid,
-      date: new Date(),
+      date,
     };
 
     return this.post("locations/submit", body);
