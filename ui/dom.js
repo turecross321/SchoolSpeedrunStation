@@ -44,4 +44,5 @@ const dom = {
     bar: document.getElementById("dialogTimerBar"),
     label: document.getElementById("dialogTimerLabel"),
   },
+  gameDescription: document.getElementById("game-description"),
 };

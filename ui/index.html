@@ -53,18 +53,20 @@
       <div id="infoPanel">
         <div class="info-card">
           <label>Vad är det här?</label>
-          <p>
-            Detta är ett spel som går ut på att springa så snabbt som möjligt.
-            Det har placerats två stationer i skolan - en vid Fordonsprogrammets
-            ingång, och en vid huvudentrén. För att spela skannar spelaren sitt
-            passerkort mot kortläsaren på båda stationerna. Tiden det tog kommer
-            sedan att visas på topplistan.
-
-            <br />
-            <br />
-            Vad väntar du på? Skanna ditt passerkort nu, och försök att klå den
-            snabbaste tiden!
-          </p>
+          <div id="game-description-container">
+            <p id="game-description"></p>
+            <div class="vertical-line"></div>
+            <img
+              class="description-image"
+              src="images/station_0.png"
+              height="300"
+            />
+            <img
+              class="description-image"
+              src="images/station_0.png"
+              height="300"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -157,8 +159,10 @@
       </div>
     </dialog>
 
+    <p id="credit">Ture Söderbergh | 2026</p>
+
     <!-- python main.py-->
-    <script src="config.js"></script>
+    <script src="cum.js"></script>
 
     <!-- libraries-->
     <script src="qrcode.min.js"></script>

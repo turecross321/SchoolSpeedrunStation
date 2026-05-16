@@ -6,8 +6,15 @@ websocket_host: 127.0.0.1
 websocket_port: 6769
 
 # API URL consumed by the UI
-api_base_url: http://127.0.0.1:5055/
+api_base_url: http://192.168.1.135:5055/
 registration_page_url: http://192.168.1.135:5501/
 
 # Station index used by the UI
 station: 1
+
+# Station name mapping (keys are station ids)
+station_names:
+	0: "Fordonsentrén"
+	1: "Idrottsentrén"
+
+game_description: "Detta är ett spel som går ut på att springa så snabbt som möjligt. Det har placerats två stationer i skolan - en i korridoren som leder till utgången vid Fordonsprogrammet och en i gymnastiksalen framför ingången. För att spela skannar spelaren sitt passerkort mot kortläsaren på en av stationerna, springer till den andra stationen och skannar sedan sitt passerkort där också. Tiden det tog visas sedan på topplistan.\n\nVad väntar du på? Skanna ditt passerkort nu, och försök att klå den snabbaste tiden! "

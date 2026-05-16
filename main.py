@@ -35,12 +35,41 @@ def load_config() -> Dict[str, Any]:
 			if isinstance(loaded, dict):
 				cfg = loaded
 	except Exception:
-		# Minimal fallback parser for very simple YAML (key: value)
+		# Minimal fallback parser for very simple YAML (supports basic nested maps)
 		text = CONFIG_PATH.read_text(encoding="utf-8")
-		for raw in text.splitlines():
+		lines = text.splitlines()
+		i = 0
+		while i < len(lines):
+			raw = lines[i]
 			line = raw.strip()
 			if not line or line.startswith("#"):
+				i += 1
 				continue
+			# Handle parent mapping like 'station_names:' followed by indented lines
+			if line.endswith(":"):
+				parent_key = line[:-1].strip()
+				nested = {}
+				i += 1
+				while i < len(lines):
+					next_raw = lines[i]
+					# stop if next line is not indented
+					if not (next_raw.startswith(" ") or next_raw.startswith("\t")):
+						break
+					next_line = next_raw.strip()
+					if not next_line or next_line.startswith("#"):
+						i += 1
+						continue
+					if ":" in next_line:
+						k, v = next_line.split(":", 1)
+						val = v.strip()
+						# strip quotes if present
+						if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+							val = val[1:-1]
+						nested[k.strip()] = val
+					i += 1
+				cfg[parent_key] = nested
+				continue
+			# Simple key: value
 			if ":" in line:
 				k, v = line.split(":", 1)
 				key = k.strip()
@@ -49,6 +78,7 @@ def load_config() -> Dict[str, Any]:
 				if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
 					val = val[1:-1]
 				cfg[key] = val
+			i += 1
 
 	return cfg
 
@@ -67,13 +97,32 @@ STATION = int(cfg.get("station", 0))
 
 class UiRequestHandler(SimpleHTTPRequestHandler):
 	def do_GET(self) -> None:
-		if self.path == "/config.js":
+		if self.path == "/cum.js":
+			# Prepare station name mapping for client config
+			raw_station_names = cfg.get("station_names", {})
+			station_names = {}
+			if isinstance(raw_station_names, str):
+				try:
+					station_names = json.loads(raw_station_names)
+				except Exception:
+					station_names = {}
+			elif isinstance(raw_station_names, dict):
+				station_names = raw_station_names
+
+			# Normalize game description (allow literal "\\n" in simple parser)
+			raw_game_description = cfg.get("game_description", "")
+			game_description = ""
+			if isinstance(raw_game_description, str):
+				game_description = raw_game_description.replace("\\n", "\n")
+
 			config = {
 				"baseUrl": API_BASE_URL,
 				"registrationPageUrl": REGISTRATION_PAGE_URL,
 				"station": STATION,
+				"stationNames": station_names,
+				"gameDescription": game_description,
 			}
-			payload = f"window.APP_CONFIG = {json.dumps(config)};\n"
+			payload = f"const config = {json.dumps(config)};\n"
 			encoded = payload.encode("utf-8")
 			self.send_response(HTTPStatus.OK)
 			self.send_header("Content-Type", "application/javascript; charset=utf-8")

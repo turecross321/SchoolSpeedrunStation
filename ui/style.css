@@ -14,7 +14,6 @@ body {
   color: #1a1a1a;
   padding: 2rem 1rem;
   margin: 0;
-  min-height: 100vh;
 }
 
 /* Re-enable cursor for registration step 1 (basic info) and step 2 (profile picture) */
@@ -503,7 +502,7 @@ dialog {
   max-width: 1400px;
   margin: 0 auto;
   min-height: 0;
-  grid-template-rows: minmax(0, 1fr) minmax(0, 0.45fr);
+  grid-template-rows: minmax(0, 1fr);
 }
 
 #infoPanel {
@@ -538,7 +537,7 @@ dialog p {
 
 dialog img {
   object-fit: cover;
-  margin: 0 auto 0.5rem;
+  margin: 0 auto 0rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -681,6 +680,10 @@ dialog span {
   border: 1px solid #d7e6ff;
 }
 
+#registrationQrCodeContainer {
+  height: 200px;
+}
+
 .qr-close-text {
   font-size: 0.95rem;
   font-weight: 600;
@@ -734,4 +737,26 @@ dialog span {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   display: block;
   margin: 0 auto 0.5rem;
+}
+
+#game-description-container {
+  display: flex;
+  gap: 16px;
+}
+
+.vertical-line {
+  border-left: thick solid #e9ecef;
+  border-width: 2px;
+}
+
+.description-image {
+  border-radius: 8px;
+}
+
+#credit {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  text-align: end;
+  font-style: italic;
 }

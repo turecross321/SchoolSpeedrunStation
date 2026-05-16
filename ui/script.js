@@ -7,12 +7,8 @@ const dialogPages = {
   runSummary: 3,
 };
 
-// Local station name mapping (temporary). Keys are numeric station ids.
-// Replace/extend this when server side mapping endpoint exists.
-const stationNames = {
-  0: "Fordonsentrén",
-  1: "Huvudentrén",
-};
+// Station name mapping comes from central AppConfig helper
+const stationNames = config.stationNames;
 
 function formatStationPair(start, end) {
   const sName = stationNames[start] ?? String(start);
@@ -276,7 +272,9 @@ async function initializeWelcomeBackPage(guid, user, scanDate) {
 
   dom.welcomeBack.name.innerText = `${user.username}`;
   dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(user.id);
-  dom.welcomeBack.otherStation.innerText = stationNames[config.station ?? 0];
+  dom.welcomeBack.otherStation.innerText =
+    window.AppConfig?.getStationName(config.station ?? 0) ??
+    stationNames[config.station ?? 0];
 
   updateLeaderboard();
   updateRunningRightNow();
@@ -526,6 +524,10 @@ async function updateRunningRightNow() {
   }
 }
 
+function fillGameDescription() {
+  dom.gameDescription.innerText = config.gameDescription;
+}
+
 function onNfcConnect() {
   dom.nfcWarning.hidden = true;
 }
@@ -543,6 +545,7 @@ const client = new NfcClient(
   onNfcDisconnect,
 );
 const sound = new SoundManager();
+fillGameDescription();
 
 setInterval(() => updateLeaderboard(), 60 * 1000); // Automatically refresh leaderboard every minute
 setInterval(() => updateRunningRightNow(), 15 * 1000); // Automatically refresh running right now every 15 seconds
@@ -550,5 +553,3 @@ setInterval(() => updateRunningRightNow(), 15 * 1000); // Automatically refresh 
 client.connect();
 updateLeaderboard();
 updateRunningRightNow();
-
-const config = window.APP_CONFIG ?? {};
