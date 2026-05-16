@@ -162,8 +162,8 @@ async function initializeRunSummaryPage(
         rs.title.innerText =
           previousBestRun != null &&
           newRun.milliseconds < previousBestRun.milliseconds
-            ? "Du slog ditt rekord!"
-            : "Du har genomfört loppet!";
+            ? "Nytt rekord!"
+            : "Inte dåligt!";
       if (rs && rs.time)
         rs.time.innerText = formatTime(newRun.milliseconds ?? 0);
       if (rs && rs.stations)
