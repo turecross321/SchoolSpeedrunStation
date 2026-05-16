@@ -266,6 +266,8 @@ async function initializeRunSummaryPage(
     throw e;
   }
 
+  updateLeaderboard();
+  updateRunningRightNow();
   startDialogTimer(15 * 1000, () => closeNfcDialog());
 }
 
