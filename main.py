@@ -97,7 +97,7 @@ STATION = int(cfg.get("station", 0))
 
 class UiRequestHandler(SimpleHTTPRequestHandler):
 	def do_GET(self) -> None:
-		if self.path == "/cum.js":
+		if self.path == "/config.js":
 			# Prepare station name mapping for client config
 			raw_station_names = cfg.get("station_names", {})
 			station_names = {}

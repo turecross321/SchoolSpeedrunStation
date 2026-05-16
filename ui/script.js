@@ -272,9 +272,9 @@ async function initializeWelcomeBackPage(guid, user, scanDate) {
 
   dom.welcomeBack.name.innerText = `${user.username}`;
   dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(user.id);
-  dom.welcomeBack.otherStation.innerText =
-    window.AppConfig?.getStationName(config.station ?? 0) ??
-    stationNames[config.station ?? 0];
+
+  const otherStation = (config.station + 1) % 2;
+  dom.welcomeBack.otherStation.innerText = stationNames[otherStation];
 
   updateLeaderboard();
   updateRunningRightNow();
