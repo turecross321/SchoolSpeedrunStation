@@ -141,39 +141,24 @@ function startDialogTimer(durationMs, onComplete) {
 
 function initializeFetchingPlayerPage() {}
 
-async function initializeWelcomeBackPage(guid, user, scanDate) {
-  dom.welcomeBack.pfp.src = null;
-
-  dom.welcomeBack.name.innerText = `${user.username}`;
-  dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(user.id);
-  dom.welcomeBack.otherStation.innerText = stationNames[config.station ?? 0];
-
-  const response = await api.submitLocation(guid, scanDate);
-  const newRun = response.body.newRun;
-  const previousBestRun = response.body.previousBestRun;
-
-  updateLeaderboard();
-  updateRunningRightNow();
-
-  if (newRun != null) {
-    // Show the NFC dialog to announce the new run instead of an alert
-    try {
-      goToDialogPage(dialogPages.runSummary);
-      dom.nfcDialog.showModal();
-    } catch (e) {
-      // ignore if dialog DOM not ready
-    }
-    // Give the user more time to see the run summary (15s)
-    startDialogTimer(15 * 1000, () => closeNfcDialog());
-  } else {
-    // start universal dialog timer for welcome back (4s)
-    startDialogTimer(4 * 1000, () => closeNfcDialog());
-  }
-
-  console.log(newRun);
-
-  // Populate run summary UI (separate page)
+async function initializeRunSummaryPage(
+  guid,
+  user,
+  scanDate,
+  newRun,
+  previousBestRun,
+) {
   try {
+    if (
+      !previousBestRun ||
+      newRun.milliseconds < previousBestRun.milliseconds
+    ) {
+      // new best
+      sound.playFinishBestRun();
+    } else {
+      sound.playFinishRun();
+    }
+
     const rs = dom.runSummary;
     if (newRun != null) {
       if (rs && rs.containerInner) rs.containerInner.hidden = false;
@@ -277,11 +262,29 @@ async function initializeWelcomeBackPage(guid, user, scanDate) {
       if (rs && rs.containerInner) rs.containerInner.hidden = true;
     }
   } catch (e) {
-    // ignore DOM issues
+    closeNfcDialog();
+    throw e;
   }
+
+  startDialogTimer(15 * 1000, () => closeNfcDialog());
+}
+
+async function initializeWelcomeBackPage(guid, user, scanDate) {
+  dom.welcomeBack.pfp.src = null;
+
+  dom.welcomeBack.name.innerText = `${user.username}`;
+  dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(user.id);
+  dom.welcomeBack.otherStation.innerText = stationNames[config.station ?? 0];
+
+  updateLeaderboard();
+  updateRunningRightNow();
+  sound.playStartRun();
+  startDialogTimer(4 * 1000, () => closeNfcDialog());
 }
 
 async function initializeRegistrationPage(guid) {
+  sound.playRegistration();
+
   dom.registration.qrCodeContainer.innerHTML = "";
 
   const response = await api.requestRegistration(guid);
@@ -354,6 +357,8 @@ function goToDialogPage(page) {
 }
 
 async function onNfcScan(guid) {
+  sound.playScan();
+
   // clear timers from any previous scan so UI resets cleanly
   clearNfcTimers();
   const scanDate = new Date();
@@ -370,8 +375,23 @@ async function onNfcScan(guid) {
       goToDialogPage(dialogPages.registration);
       await initializeRegistrationPage(guid);
     } else {
-      initializeWelcomeBackPage(guid, response.body, scanDate);
-      goToDialogPage(dialogPages.welcomeBack);
+      const locationResponse = await api.submitLocation(guid, scanDate);
+      const newRun = locationResponse.body.newRun;
+      const previousBestRun = locationResponse.body.previousBestRun;
+
+      if (newRun) {
+        initializeRunSummaryPage(
+          guid,
+          response.body,
+          scanDate,
+          newRun,
+          previousBestRun,
+        );
+        goToDialogPage(dialogPages.runSummary);
+      } else {
+        initializeWelcomeBackPage(guid, response.body, scanDate);
+        goToDialogPage(dialogPages.welcomeBack);
+      }
     }
   } catch (error) {
     closeNfcDialog();
@@ -520,6 +540,7 @@ const client = new NfcClient(
   onNfcConnect,
   onNfcDisconnect,
 );
+const sound = new SoundManager();
 
 setInterval(() => updateLeaderboard(), 60 * 1000); // Automatically refresh leaderboard every minute
 setInterval(() => updateRunningRightNow(), 15 * 1000); // Automatically refresh running right now every 15 seconds
