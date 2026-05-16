@@ -10,4 +10,4 @@ api_base_url: http://127.0.0.1:5055/
 registration_page_url: http://192.168.1.135:5501/
 
 # Station index used by the UI
-station: 1
+station: 0

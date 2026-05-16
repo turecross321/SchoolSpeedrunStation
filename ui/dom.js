@@ -2,13 +2,14 @@ const dom = {
   nfcDialog: document.getElementById("nfcDialog"),
   nfcWarning: document.getElementById("nfcWarning"),
   fetchingPlayer: document.getElementById("fetchingPlayer"),
+  topScoresCount: document.getElementById("topScoresCount"),
   leaderboardBody: document.getElementById("topScoresBody"),
+  runningRightNowCount: document.getElementById("runningRightNowCount"),
   runningRightNowBody: document.getElementById("runningRightNowBody"),
   welcomeBack: {
     container: document.getElementById("welcomeBackRegistered"),
     name: document.getElementById("welcomeBackRegisteredName"),
     pfp: document.getElementById("welcomeBackRegisteredPfp"),
-    program: document.getElementById("welcomeBackRegisteredProgram"),
     otherStation: document.getElementById("welcome-back-other-station"),
     runInfo: {
       container: document.getElementById("welcomeBackRunInfo"),

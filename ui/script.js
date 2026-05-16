@@ -1,3 +1,5 @@
+const MAX_DISPLAY_ITEMS = 5;
+
 const dialogPages = {
   fetchingPlayer: 0,
   welcomeBack: 1,
@@ -16,6 +18,33 @@ function formatStationPair(start, end) {
   const sName = stationNames[start] ?? String(start);
   const eName = stationNames[end] ?? String(end);
   return `${sName} → ${eName}`;
+}
+
+function launchConfettiBurst() {
+  const container = document.getElementById("runSummaryConfetti");
+  if (!container) return;
+
+  container.innerHTML = "";
+  const colors = ["#0066ff", "#00c2ff", "#6c5ce7", "#ffcf3f", "#ff6b6b"];
+  const pieceCount = 36;
+
+  for (let index = 0; index < pieceCount; index += 1) {
+    const piece = document.createElement("span");
+    piece.className = "confetti-piece";
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.backgroundColor = colors[index % colors.length];
+    piece.style.setProperty("--drift", `${(Math.random() * 2 - 1) * 160}px`);
+    piece.style.setProperty("--spin", `${(Math.random() * 2 - 1) * 900}deg`);
+    piece.style.animationDuration = `${1.8 + Math.random() * 1.2}s`;
+    piece.style.animationDelay = `${Math.random() * 0.2}s`;
+    piece.style.width = `${8 + Math.random() * 8}px`;
+    piece.style.height = `${10 + Math.random() * 10}px`;
+    container.appendChild(piece);
+  }
+
+  window.setTimeout(() => {
+    if (container) container.innerHTML = "";
+  }, 3500);
 }
 
 function closeNfcDialog() {
@@ -117,19 +146,16 @@ async function initializeWelcomeBackPage(guid, user) {
 
   dom.welcomeBack.name.innerText = `${user.username}`;
   dom.welcomeBack.pfp.src = api.getUserProfilePictureUrl(user.id);
-  dom.welcomeBack.program.innerText = formatProgram(user.schoolProgram);
   dom.welcomeBack.otherStation.innerText = stationNames[config.station ?? 0];
 
   const response = await api.submitLocation(guid);
   const newRun = response.body.newRun;
-  const newRunIndex = response.body.newRunIndex;
   const previousBestRun = response.body.previousBestRun;
-  const previousBestRunIndex = response.body.previousBestRunIndex;
 
   updateLeaderboard();
   updateRunningRightNow();
 
-  if (newRun != null && newRunIndex != null) {
+  if (newRun != null) {
     // Show the NFC dialog to announce the new run instead of an alert
     try {
       goToDialogPage(dialogPages.runSummary);
@@ -145,12 +171,11 @@ async function initializeWelcomeBackPage(guid, user) {
   }
 
   console.log(newRun);
-  console.log(newRunIndex);
 
   // Populate run summary UI (separate page)
   try {
     const rs = dom.runSummary;
-    if (newRun != null && newRunIndex != null) {
+    if (newRun != null) {
       if (rs && rs.containerInner) rs.containerInner.hidden = false;
       if (rs && rs.title)
         rs.title.innerText =
@@ -185,6 +210,7 @@ async function initializeWelcomeBackPage(guid, user) {
           (previousBestRun.milliseconds ?? 0) - (newRun.milliseconds ?? 0);
         if (diff > 0) {
           if (rs.time) rs.time.classList.add("highlight");
+          launchConfettiBurst();
         } else {
           if (rs.time) rs.time.classList.remove("highlight");
         }
@@ -198,31 +224,12 @@ async function initializeWelcomeBackPage(guid, user) {
           const bestResponse = await api.getBestRuns();
           const allRuns = bestResponse.body ?? [];
 
-          // Determine user's best index: prefer provided indices, else find by user id
-          let userBestIndex = null;
-          if (typeof newRunIndex === "number" && newRunIndex >= 0)
-            userBestIndex = newRunIndex;
-          if (
-            typeof previousBestRunIndex === "number" &&
-            previousBestRunIndex >= 0
-          ) {
-            if (userBestIndex === null) userBestIndex = previousBestRunIndex;
-            else userBestIndex = Math.min(userBestIndex, previousBestRunIndex);
-          }
+          // Find the user's best result directly from the sorted run list.
+          const userBestIndex = allRuns.findIndex(
+            (r) => (r.user || {}).id === user.id,
+          );
 
-          if (userBestIndex === null) {
-            // fallback: find first run for this user in list
-            const found = allRuns.findIndex(
-              (r) => (r.user || {}).id === user.id,
-            );
-            if (found >= 0) userBestIndex = found;
-          }
-
-          if (
-            userBestIndex === null ||
-            userBestIndex < 0 ||
-            userBestIndex >= allRuns.length
-          ) {
+          if (userBestIndex < 0 || userBestIndex >= allRuns.length) {
             rs.leaderboardBody.innerHTML = `
               <tr><td colspan="3" class="empty">Ingen placering tillgänglig</td></tr>
             `;
@@ -374,7 +381,14 @@ async function onNfcScan(guid) {
 async function updateLeaderboard() {
   try {
     const response = await api.getBestRuns();
-    const runs = response.body.slice(0, 5) ?? [];
+    const allRuns = response.body ?? [];
+    const runs = allRuns.slice(0, MAX_DISPLAY_ITEMS);
+    const hasMore = allRuns.length > MAX_DISPLAY_ITEMS;
+
+    // Update count badge
+    if (dom.topScoresCount) {
+      dom.topScoresCount.innerText = `(${allRuns.length})`;
+    }
 
     if (!runs || runs.length === 0) {
       dom.leaderboardBody.innerHTML = `
@@ -418,6 +432,13 @@ async function updateLeaderboard() {
         `;
         })
         .join("");
+      if (hasMore) {
+        dom.leaderboardBody.innerHTML += `
+          <tr>
+            <td colspan="4" style="text-align: center; padding: 0.75rem; color: #adb5bd; font-size: 1.8rem; letter-spacing: 0.25rem;">…</td>
+          </tr>
+        `;
+      }
     }
   } catch (error) {
     console.error("Leaderboard update failed:", error);
@@ -426,14 +447,28 @@ async function updateLeaderboard() {
 
 async function updateRunningRightNow() {
   const response = await api.getRecentLocations();
-  const locations = response.body.slice(0, 5);
+  const allLocations = response.body ?? [];
+  const locations = allLocations.slice(0, MAX_DISPLAY_ITEMS);
+  const hasMore = allLocations.length > MAX_DISPLAY_ITEMS;
 
-  dom.runningRightNowBody.innerHTML = locations
-    .map((location, index) => {
-      const user = location.user ?? {};
-      const profilePictureUrl = api.getUserProfilePictureUrl(user.id);
+  // Update count badge
+  if (dom.runningRightNowCount) {
+    dom.runningRightNowCount.innerText = `(${allLocations.length})`;
+  }
 
-      return `
+  if (!locations || locations.length === 0) {
+    dom.runningRightNowBody.innerHTML = `
+      <tr>
+        <td colspan="3" class="empty">Inga spelare just nu</td>
+      </tr>
+    `;
+  } else {
+    dom.runningRightNowBody.innerHTML = locations
+      .map((location, index) => {
+        const user = location.user ?? {};
+        const profilePictureUrl = api.getUserProfilePictureUrl(user.id);
+
+        return `
           <tr>
             <td>
               <div class="table-user">
@@ -456,14 +491,15 @@ async function updateRunningRightNow() {
             </td>
           </tr>
         `;
-    })
-    .join("");
-  if (!locations || locations.length === 0) {
-    dom.runningRightNowBody.innerHTML = `
-      <tr>
-        <td colspan="3" class="empty">Inga spelare just nu</td>
-      </tr>
-    `;
+      })
+      .join("");
+    if (hasMore) {
+      dom.runningRightNowBody.innerHTML += `
+        <tr>
+          <td colspan="3" style="text-align: center; padding: 0.75rem; color: #adb5bd; font-size: 1.8rem; letter-spacing: 0.25rem;">…</td>
+        </tr>
+      `;
+    }
   }
 }
 

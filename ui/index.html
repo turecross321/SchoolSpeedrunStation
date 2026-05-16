@@ -15,7 +15,9 @@
       <div id="scoresContainer">
         <div id="topScoresSection">
           <div class="table-wrap">
-            <label for="topScores">Bästa tider</label>
+            <label for="topScores"
+              >🏆 Bästa tider <span id="topScoresCount">(0)</span></label
+            >
             <table id="topScores">
               <thead>
                 <tr>
@@ -32,7 +34,9 @@
 
         <div id="runningRightNowSection">
           <div class="table-wrap">
-            <label for="runningRightNow">Springer just nu</label>
+            <label for="runningRightNow">
+              ⚡ Springer just nu <span id="runningRightNowCount">(0)</span>
+            </label>
             <table id="runningRightNow">
               <thead>
                 <tr>
@@ -76,8 +80,6 @@
           Välkommen tillbaka, <span id="welcomeBackRegisteredName">namn</span>
         </p>
 
-        <p>Program: <span id="welcomeBackRegisteredProgram">okänt</span></p>
-
         <p>
           Din tid och plats har dokumenterats. Vi ses vid
           <span id="welcome-back-other-station"></span>!
@@ -85,6 +87,7 @@
       </div>
 
       <div id="runSummaryPage" hidden>
+        <div id="runSummaryConfetti" aria-hidden="true"></div>
         <h2 id="runSummaryTitle">Du har genomfört loppet!</h2>
 
         <div id="runSummary" class="welcome-run-info" hidden>
