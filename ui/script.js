@@ -31,6 +31,10 @@ function clearNfcTimers() {
     clearInterval(window.dialogTimerInterval);
     window.dialogTimerInterval = null;
   }
+  if (window.registrationScanInterval) {
+    clearInterval(window.registrationScanInterval);
+    window.registrationScanInterval = null;
+  }
   // Reset dialog timer UI so new scans start from zero
   try {
     const timerEl =
@@ -140,6 +144,24 @@ async function initializeRegistrationPage(guid) {
     height: 200,
   });
 
+  if (window.registrationScanInterval) {
+    clearInterval(window.registrationScanInterval);
+    window.registrationScanInterval = null;
+  }
+
+  window.registrationScanInterval = setInterval(async () => {
+    try {
+      const scanResponse = await api.isRegistrationScanned(registration.id);
+      const scanned = scanResponse.body.isScanned === true;
+
+      if (scanned) {
+        closeNfcDialog();
+      }
+    } catch (error) {
+      console.error("Registration scan poll failed:", error);
+    }
+  }, 5 * 1000);
+
   // 30 s
   const durationMs = 30 * 1000;
 
@@ -177,7 +199,7 @@ async function onNfcScan(guid) {
   dom.nfcDialog.showModal();
 
   try {
-    const response = await api.getUser(guid);
+    const response = await api.getUserWithCardGuid(guid);
 
     if (response.status == 404) {
       goToDialogPage(dialogPages.registration);
