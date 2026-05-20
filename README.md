@@ -1,3 +1,17 @@
-<img width="734" height="745" alt="bild" src="https://github.com/user-attachments/assets/bf805cae-fd34-4ae2-83b1-0e646e4242bf" />
+# SchoolSpeedrun
+A game I made for my school where players run as quickly as they can between two "stations".
 
-<img width="747" height="354" alt="bild" src="https://github.com/user-attachments/assets/c021eb18-e4de-4b7d-b042-989c61682521" />
+This repository contains the code that each station runs. 
+
+## Good to know
+- `setup.sh` automatically sets everything up.
+- Backend is in a [separate repository](https://github.com/turecross321/SchoolSpeedrunApi)
+- Registration page is in a [separate repository](https://github.com/turecross321/SchoolSpeedrunRegistration)
+  
+
+
+
+
+## Video demonstration
+
+https://github.com/user-attachments/assets/47cb96ca-2284-45e3-be95-806a9e8a260d
